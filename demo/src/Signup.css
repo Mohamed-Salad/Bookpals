@@ -1,0 +1,90 @@
+.Background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("/public/p5.jpg") no-repeat center center/cover;
+    filter: blur(10px);
+    z-index: -1;
+  }
+
+.signup-container {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f7f7f7;
+    padding: 2rem;
+    max-width: 400px;
+    margin: 7rem auto; 
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .signup-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .signup-form .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .signup-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .signup-form input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .signup-btn {
+    background-color: #8B4513;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .signup-btn:hover {
+    background-color: darkred;
+  }
+  
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-links a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+  

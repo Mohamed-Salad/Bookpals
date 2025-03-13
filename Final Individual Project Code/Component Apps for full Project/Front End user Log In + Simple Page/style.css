@@ -1,0 +1,261 @@
+/* Importing a Google font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+/* Universal selector that applies styles to all elements */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Prevents padding and margin from affecting width/height */
+    font-family: 'Poppins', sans-serif; 
+}
+
+body {
+    display: flex; /* Use flexbox layout for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    min-height: 100vh; /* Make body full height */
+    background: url('background.jpg') no-repeat; /* Background image */
+    background-size: cover; /* Ensure the image covers the whole screen */
+    background-position: center; /* Keep the background centered */
+}
+
+header {
+    position: fixed; /* Fix header at the top of the page */
+    top: 0; /* Align to the top */
+    left: 0;
+    width: 100%; /* Full width */
+    padding: 10px 100px; /* Padding for spacing */
+    display: flex; /* Flex layout */
+    justify-content: space-between; /* Space between elements */
+    align-items: center; /* Vertically align items */
+    z-index: 99; /* Keep header above other content */
+}
+
+.logo {
+    font-size: 2em; /* Large font size for the logo */
+    color: #fff; /* White text color */
+    user-select: none; /* Prevent logo text from being selected */
+}
+
+.navigation a {
+    position: relative;
+    font-size: 1.1em; /* Set font size */
+    color: #fff; /* White text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: 500; /* Semi-bold font weight */
+    margin-left: 40px; /* Space between links */
+}
+
+.navigation a::after {
+    content: ''; /* Add pseudo-element after each link */
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%; /* Full width */
+    height: 3px;
+    background: #fff; /* White color */
+    border-radius: 5px; /* Rounded corners */
+    transform: scaleX(0); /* Initially scale to 0 */
+    transform-origin: right; /* Animation from right */
+    transition: transform .5s; /* Smooth transition */
+}
+
+.navigation a:hover::after {
+    transform: scaleX(1); /* On hover, scale to full width */
+}
+
+.navigation .btnLogin-popup {
+    width: 130px;
+    height: 50px;
+    background: transparent; /* Transparent background */
+    border: 2px solid #fff; /* White border */
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #fff;
+    font-weight: 500;
+    margin-left: 40px; /* Space between button and links */
+    transition: .5s;
+}
+
+.navigation .btnLogin-popup:hover {
+    background: #fff; /* White background on hover */
+    color: #162938; /* Change text color */
+}
+
+.wrapper {
+    position: relative;
+    width: 400px;
+    height: 440px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5); /* Border with transparency */
+    border-radius: 20px;
+    backdrop-filter: blur(20px); /* Apply blur effect behind */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5); /* Box shadow for depth */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transform: scale(0); /* Start scaled down */
+    transition: transform .5s ease, height .2s ease;
+}
+
+.wrapper.active {
+    height: 520px; /* When active, change height */
+}
+
+.wrapper.active-popup {
+    transform: scale(1); /* Scale back to normal size */
+}
+
+/* Styling for the form box container */
+.wrapper .form-box {
+    width: 100%;
+    padding: 40px;
+}
+
+.wrapper .form-box.login {
+    transition: transform .18s ease;
+    transform: translateX(0); /* No transformation initially */
+}
+
+.wrapper.active .form-box.login {
+    transition: none; /* No transition during active state */
+    transform: translateX(-400px); /* Slide to the left */
+}
+
+.wrapper .form-box.register {
+    position: absolute;
+    transition: none;
+    transform: translateX(400px); /* Initially move right */
+}
+
+.wrapper.active .form-box.register {
+    transition: transform .18s ease;
+    transform: translateX(0); /* Move to normal position */
+}
+
+/* Close icon styling */
+.wrapper .icon-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: #162938;
+    font-size: 2em;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Form header styling */
+.form-box h2 {
+    font-size: 2em;
+    color: #162938;
+    text-align: center;
+}
+
+/* Input box styling */
+.input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #162938;
+    margin: 30px 0;
+}
+
+.input-box label {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #162938;
+    font-weight: 500;
+    pointer-events: none; /* Prevent label from being interacted with */
+    transition: .5s;
+}
+
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+    top: -5px;
+    left: 5px;
+}
+
+/* Input field styling */
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #162938;
+    font-weight: 600;
+    padding: 0 35px 0 5px;
+}
+
+/* Icon inside the input box */
+.input-box .icon {
+    position: absolute;
+    right: 8px;
+    font-size: 1.2em;
+    color: #162938;
+}
+
+.remember-forgot {
+    font-size: .9em;
+    color: #162938;
+    font-weight: 500;
+    margin: -15px 0 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.remember-forgot label input {
+    accent-color: #162938;
+    margin-right: 3px;
+}
+
+.remember-forgot a {
+    color: #162938;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    width: 100%;
+    height: 45px;
+    background: #162938;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #fff;
+    font-weight: 500;
+}
+
+.login-register {
+    font-size: .9em;
+    color: #162938;
+    text-align: center;
+}
+
+.login-register a {
+    color: #162938;
+    text-decoration: none;
+}
+
+.login-register a:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,104 @@
+/* Background remains unchanged */
+.Background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("/public/p5.jpg") no-repeat center center/cover;
+    filter: blur(10px);
+    z-index: -1;
+  }
+  
+ 
+  .login-container {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background: rgba(255, 255, 255, 0.9);  /* White with a hint of transparency */
+    padding: 2.5rem;                      /* Slightly increased padding */
+    max-width: 400px;
+    margin: 7rem auto;                    /* Centers the container */
+    border: 1px solid #ddd;               /* Lighter border color */
+    border-radius: 10px;                  /* Rounded corners */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Adds depth with a soft shadow */
+  }
+  
+  .login-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  /* Form group spacing */
+  .login-form .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Labels styling */
+  .login-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  /* Input fields styling with focus effect */
+  .login-form input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .login-form input:focus {
+    border-color: brown; 
+    outline: none;
+  }
+  
+  
+  .login-btn {
+    background-color: #8B4513;  
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+  
+  .login-btn:hover {
+    background-color: darkred; 
+  }
+  
+  .error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .auth-links {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .auth-links a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
