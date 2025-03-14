@@ -16,13 +16,11 @@ const Signup = () => {
     e.preventDefault();
     setError('');
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    // Validate password strength
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
@@ -31,18 +29,23 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await auth.signUp(email, password);
+      console.log('Attempting signup with:', { email });
+      const { data, error: signUpError } = await auth.signUp({
+        email,
+        password
+      });
       
-      if (error) throw error;
+      console.log('Signup response:', { data, signUpError });
 
-      if (data) {
-        // Successful signup
-        console.log('Signed up successfully:', data);
-        // Redirect to interests page to set up profile
+      if (signUpError) throw signUpError;
+
+      if (data?.user) {
         navigate('/interests');
+      } else {
+        throw new Error('No user data returned from signup');
       }
     } catch (err) {
-      console.error('Error signing up:', err.message);
+      console.error('Signup error:', err);
       setError(err.message || 'Failed to sign up. Please try again.');
     } finally {
       setLoading(false);
