@@ -3,50 +3,74 @@ import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import Navbar from './Navbar';
 import { auth } from './Supabase';
+// import { validatePassword, validateEmail } from './utils/authValidation';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Confirm password
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-
     try {
-      console.log('Attempting signup with:', { email });
-      const { data, error: signUpError } = await auth.signUp({
-        email,
-        password
+      const { error } = await auth.signUp({
+        email: formData.email,
+        password: formData.password
       });
-      
-      console.log('Signup response:', { data, signUpError });
 
-      if (signUpError) throw signUpError;
-
-      if (data?.user) {
-        navigate('/interests');
-      } else {
-        throw new Error('No user data returned from signup');
+      if (error) {
+        setErrors(prev => ({
+          ...prev,
+          submit: error.message
+        }));
+        return;
       }
-    } catch (err) {
-      console.error('Signup error:', err);
-      setError(err.message || 'Failed to sign up. Please try again.');
+
+      // Redirect immediately after successful signup
+      navigate('/interests');
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        submit: 'An unexpected error occurred. Please try again.'
+      }));
     } finally {
       setLoading(false);
     }
@@ -57,55 +81,61 @@ const Signup = () => {
       <Navbar />
       <div className="Background"></div>
       <div className="signup-container">
-        <h2>Create Account</h2>
-        {error && <div className="error-message">{error}</div>}
-        <form className="signup-form" onSubmit={handleSignup}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
+        <div className="signup-card">
+          <h2>Create Account</h2>
+          <form onSubmit={handleSignup}>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={errors.email ? 'error' : ''}
+                placeholder="Enter your email"
+              />
+              {errors.email && <span className="error-message">{errors.email}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={errors.password ? 'error' : ''}
+                placeholder="Create a password"
+              />
+              {errors.password && <span className="error-message">{errors.password}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={errors.confirmPassword ? 'error' : ''}
+                placeholder="Confirm your password"
+              />
+              {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+            </div>
+
+            {errors.submit && <div className="error-message">{errors.submit}</div>}
+
+            <button type="submit" className="signup-btn" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="auth-links">
+            <p>Already have an account? <a href="/login">Log In</a></p>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <button type="submit" className="signup-btn" disabled={loading}>
-            {loading ? 'Creating Account...' : 'Sign Up'}
-          </button>
-        </form>
-
-        <div className="auth-links">
-          <p>Already have an account? <a href="/login">Log In</a></p>
         </div>
       </div>
     </div>

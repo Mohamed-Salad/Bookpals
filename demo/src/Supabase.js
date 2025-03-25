@@ -4,6 +4,10 @@ const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables:', {
+        supabaseUrl,
+        supabaseAnonKey
+    });
     throw new Error('Missing Supabase environment variables');
 }
 
@@ -11,168 +15,182 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Authentication helper functions
 export const auth = {
-    // Sign up a new user
     signUp: async (signUpData) => {
-        console.log('Attempting signup with:', signUpData); // Debug log
-        const { data, error } = await supabase.auth.signUp(signUpData);
-        console.log('Signup response:', { data, error }); // Debug log
-        return { data, error };
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: signUpData.email,
+                password: signUpData.password
+            });
+
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Signup error:', error);
+            return { data: null, error };
+        }
     },
 
-    // Sign in user
     signIn: async (email, password) => {
-        console.log('Attempting signin with email:', email); // Debug log
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-        console.log('Signin response:', { data, error }); // Debug log
-        return { data, error };
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Signin error:', error);
+            return { data: null, error };
+        }
     },
 
-    // Sign out user
     signOut: async () => {
-        const { error } = await supabase.auth.signOut();
-        return { error };
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+            return { error: null };
+        } catch (error) {
+            console.error('Signout error:', error);
+            return { error };
+        }
     },
 
-    // Get current user
     getCurrentUser: async () => {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        return { user, error };
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) throw error;
+            return { data: user, error: null };
+        } catch (error) {
+            console.error('Get current user error:', error);
+            return { data: null, error };
+        }
     },
+
+    onAuthStateChange: (callback) => {
+        return supabase.auth.onAuthStateChange(callback);
+    }
 };
 
 // Database helper functions
 export const database = {
-    // Profile functions
+    checkUsername: async (username) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, username')
+                .eq('username', username)
+                .single();
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+                throw error;
+            }
+            return { data, error: null };
+        } catch (error) {
+            console.error('Check username error:', error);
+            return { data: null, error };
+        }
+    },
+
     upsertProfile: async (userId, profileData) => {
-        console.log('Upserting profile for user:', userId, profileData);
-        const { data, error } = await supabase
-            .from('profiles')
-            .upsert({
-                id: userId,
-                ...profileData,
-                updated_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-        console.log('Upsert response:', { data, error });
-        return { data, error };
+        try {
+            if (!userId || !profileData.username || !profileData.reading_type || !profileData.interests) {
+                throw new Error('Missing required profile data');
+            }
+
+            const { data, error } = await supabase
+                .from('profiles')
+                .upsert({
+                    id: userId,
+                    username: profileData.username,
+                    reading_type: profileData.reading_type,
+                    interests: profileData.interests,
+                    updated_at: new Date().toISOString()
+                }, {
+                    onConflict: 'id'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Upsert profile error:', error);
+            return { data: null, error };
+        }
     },
 
     getProfile: async (userId) => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-        return { data, error };
-    },
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
 
-    // Community functions
-    createCommunity: async (communityData) => {
-        const { data, error } = await supabase
-            .from('communities')
-            .insert(communityData)
-            .select()
-            .single();
-        return { data, error };
-    },
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
 
-    getCommunities: async () => {
-        const { data, error } = await supabase
-            .from('communities')
-            .select('*')
-            .order('member_count', { ascending: false });
-        return { data, error };
-    },
-
-    joinCommunity: async (communityId, userId) => {
-        const { data, error } = await supabase
-            .from('community_members')
-            .insert({
-                community_id: communityId,
-                user_id: userId
-            })
-            .select()
-            .single();
-
-        if (!error) {
-            // Increment member count
-            await supabase.rpc('increment_member_count', { community_id: communityId });
+            if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+                throw error;
+            }
+            return { data, error: null };
+        } catch (error) {
+            console.error('Get profile error:', error);
+            return { data: null, error };
         }
-
-        return { data, error };
     },
 
-    leaveCommunity: async (communityId, userId) => {
-        const { error } = await supabase
-            .from('community_members')
-            .delete()
-            .match({ community_id: communityId, user_id: userId });
+    upsertPreferences: async (userId, preferencesData) => {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
 
-        if (!error) {
-            // Decrement member count
-            await supabase.rpc('decrement_member_count', { community_id: communityId });
+            const { data, error } = await supabase
+                .from('user_preferences')
+                .upsert({
+                    user_id: userId,
+                    reading_time: preferencesData.reading_time || null,
+                    reading_format: preferencesData.reading_format || null,
+                    favorite_authors: preferencesData.favorite_authors || [],
+                    reading_goals: preferencesData.reading_goals || null,
+                    updated_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Upsert preferences error:', error);
+            return { data: null, error };
         }
-
-        return { error };
     },
 
-    // User connection functions
-    connectWithUser: async (userId, connectedUserId) => {
-        const { data, error } = await supabase
-            .from('user_connections')
-            .insert({
-                user_id: userId,
-                connected_user_id: connectedUserId
-            })
-            .select()
-            .single();
-        return { data, error };
-    },
+    getPreferences: async (userId) => {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
 
-    getUserConnections: async (userId) => {
-        const { data, error } = await supabase
-            .from('user_connections')
-            .select(`
-                connected_user_id,
-                connected_users:profiles!user_connections_connected_user_id_fkey(*)
-            `)
-            .eq('user_id', userId);
-        return { data, error };
-    },
+            const { data, error } = await supabase
+                .from('user_preferences')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
 
-    // Recommendation functions
-    getRecommendations: async (userId) => {
-        const { data: userProfile, error: profileError } = await database.getProfile(userId);
-        if (profileError) return { data: null, error: profileError };
-
-        // Get users with similar interests
-        const { data: similarUsers, error: usersError } = await supabase
-            .from('profiles')
-            .select('*')
-            .neq('id', userId)
-            .contains('interests', userProfile.interests)
-            .eq('reading_type', userProfile.reading_type)
-            .limit(5);
-
-        // Get matching communities
-        const { data: communities, error: communitiesError } = await supabase
-            .from('communities')
-            .select('*')
-            .contains('genre', userProfile.interests)
-            .eq('reading_type', userProfile.reading_type)
-            .limit(5);
-
-        return {
-            data: {
-                users: similarUsers || [],
-                communities: communities || []
-            },
-            error: usersError || communitiesError
-        };
+            if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+                throw error;
+            }
+            return { data, error: null };
+        } catch (error) {
+            console.error('Get preferences error:', error);
+            return { data: null, error };
+        }
     }
 };
 

@@ -1,57 +1,54 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import Navbar from './Navbar';
-import { Link } from 'react-router-dom';
 import { auth, database } from './Supabase';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
+  const [communities, setCommunities] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    const loadRecommendations = async () => {
+    const checkAuth = async () => {
       try {
-        // Get current user
-        const { user } = await auth.getCurrentUser();
-        
+        const { user, error: authError } = await auth.getCurrentUser();
+        if (authError) throw authError;
+
         if (user) {
-          // Get user profile
-          const { data: profile } = await database.getProfile(user.id);
+          setUser(user);
+          const { data: profile, error: profileError } = await database.getProfile(user.id);
           
-          if (profile) {
-            // TODO: Use your recommendation algorithm here
-            // For now, showing dummy data
-            setRecommendations([
-              {
-                id: 1,
-                type: 'community',
-                name: 'Fantasy Book Club',
-                description: 'A community for fantasy book lovers',
-                image: 'https://picsum.photos/200/300?random=1',
-                members: 1200
-              },
-              {
-                id: 2,
-                type: 'user',
-                name: 'Jane Smith',
-                description: 'Loves mystery and thriller novels',
-                image: 'https://picsum.photos/200/300?random=2',
-                booksRead: 156
-              },
-              // Add more dummy recommendations
-            ]);
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            // If profile doesn't exist, create one with default values
+            if (profileError.code === 'PGRST116') {
+              const { data: newProfile, error: createError } = await database.upsertProfile(user.id, {});
+              if (!createError) {
+                setProfile(newProfile);
+              } else {
+                console.error('Error creating profile:', createError);
+              }
+            }
+          } else {
+            setProfile(profile);
           }
         }
       } catch (error) {
-        console.error('Error loading recommendations:', error);
+        console.error('Error in checkAuth:', error);
+        setUser(null);
+        setProfile(null);
       } finally {
         setLoading(false);
       }
     };
 
-    loadRecommendations();
-  }, []);
+    checkAuth();
+  }, [navigate]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -59,62 +56,98 @@ const Home = () => {
     console.log('Searching for:', searchQuery);
   };
 
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loader"></div>
+        <p>Loading your personalized dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="home-page">
       <Navbar />
       
-      <main className="main-content">
-        <div className="search-section">
-          <h1>Find Your Reading Community</h1>
-          <form onSubmit={handleSearch} className="search-form">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for readers, communities, or book genres..."
-              className="search-input"
-            />
-            <button type="submit" className="search-button">
-              Search
-            </button>
-          </form>
-        </div>
-
-        <section className="recommendations-section">
-          <h2>Recommended for you</h2>
-          {loading ? (
-            <div className="loading">Loading recommendations...</div>
-          ) : recommendations.length > 0 ? (
-            <div className="recommendations-grid">
-              {recommendations.map((item) => (
-                <div key={item.id} className="recommendation-card">
-                  <img src={item.image} alt={item.name} className="card-image" />
-                  <div className="card-content">
-                    <h3>{item.name}</h3>
-                    <p>{item.description}</p>
-                    <div className="card-stats">
-                      {item.type === 'community' ? (
-                        <span>{item.members} members</span>
-                      ) : (
-                        <span>{item.booksRead} books read</span>
-                      )}
-                    </div>
-                    <button className="connect-button">
-                      {item.type === 'community' ? 'Join' : 'Connect'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="no-recommendations">
-              <p>No recommendations available. Try updating your reading preferences.</p>
-              <Link to="/interests" className="update-preferences-button">
-                Update Preferences
-              </Link>
-            </div>
-          )}
+      <main className="dashboard-content">
+        <section className="welcome-section">
+          <h1>Welcome Back{user?.email ? `, ${user.email}` : ''}!</h1>
+          <div className="search-bar">
+            <form onSubmit={handleSearch}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for readers, communities, or book genres..."
+                className="search-input"
+              />
+              <button type="submit" className="search-button">
+                Search
+              </button>
+            </form>
+          </div>
         </section>
+
+        <div className="dashboard-grid">
+          <section className="recommendations-section">
+            <h2>Recommended Reading Buddies</h2>
+            <div className="recommendations-grid">
+              {recommendations.length > 0 ? (
+                recommendations.map((reader) => (
+                  <div key={reader.id} className="reader-card">
+                    <img src={reader.avatar_url || '/default-avatar.png'} alt={reader.username} />
+                    <div className="reader-info">
+                      <h3>{reader.username}</h3>
+                      <p>{reader.reading_type}</p>
+                      <div className="shared-interests">
+                        {reader.interests?.slice(0, 3).map((interest, index) => (
+                          <span key={index} className="interest-tag">{interest}</span>
+                        ))}
+                      </div>
+                      <button className="connect-button">Connect</button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-recommendations">
+                  <p>No recommendations available. Try updating your reading preferences.</p>
+                  <button onClick={() => navigate('/interests')} className="update-preferences-button">
+                    Update Preferences
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="communities-section">
+            <h2>Active Communities</h2>
+            <div className="communities-grid">
+              {communities.length > 0 ? (
+                communities.map((community) => (
+                  <div key={community.id} className="community-card">
+                    <div className="community-header">
+                      <h3>{community.name}</h3>
+                      <span className="member-count">{community.member_count} members</span>
+                    </div>
+                    <p>{community.description}</p>
+                    <div className="community-tags">
+                      <span className="community-type">{community.reading_type}</span>
+                      {community.genre?.map((g, index) => (
+                        <span key={index} className="genre-tag">{g}</span>
+                      ))}
+                    </div>
+                    <button className="join-button">Join Community</button>
+                  </div>
+                ))
+              ) : (
+                <div className="no-communities">
+                  <p>No communities found. Why not create one?</p>
+                  <button className="create-community-button">Create Community</button>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
