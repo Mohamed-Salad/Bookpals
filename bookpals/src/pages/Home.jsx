@@ -1,53 +1,18 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { Link, Routes, Route } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { fadeIn, slideIn, listItem } from '../../utils/animations';
-import Chat from './Chat';
-import Community from './Community';
-
-// Questions from demo
-const READING_TYPES = [
-  'Academia', 'Traditional Books', 'Online Novels',
-  'Traditional Comics', 'Online Comics'
-];
-
-const FREQUENCIES = [
-  'Daily', 'Weekly', 'Occasionally', 'Rarely'
-];
-
-const READING_TIMES = ['Morning', 'Afternoon', 'Evening', 'Night'];
-const READING_FORMATS = ['Hardcover', 'Paperback', 'E-reader', 'Audiobook'];
-
-const GENRES = [
-  'Art', 'Biography', 'Business', 'Chick Lit', "Children's",
-  'Christian', 'Classics', 'Ebooks', 'Comics', 'Fantasy',
-  'Graphic Novels', 'Historical Fiction', 'Horror', 'Humor and Comedy',
-  'Manga', 'Mystery', 'Music', 'Nonfiction', 'Paranormal',
-  'Philosophy', 'Poetry', 'Psychology', 'Romance', 'Science',
-  'Science Fiction', 'Self-Help', 'Sports', 'Suspense', 'Thriller',
-  'Travel', 'Young Adult'
-];
-
-// Mock data for communities and chats
-const MOCK_COMMUNITIES = [
-  { id: 1, name: 'Fantasy Readers', members: 1234, image: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc' },
-  { id: 2, name: 'Sci-Fi Enthusiasts', members: 856, image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c' },
-  { id: 3, name: 'Book Club', members: 432, image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f' },
-];
-
-const MOCK_CHATS = [
-  { id: 1, name: 'General Discussion', lastMessage: 'Anyone reading anything good?', time: '2m ago' },
-  { id: 2, name: 'Book Recommendations', lastMessage: 'Check out this new release!', time: '1h ago' },
-  { id: 3, name: 'Reading Group', lastMessage: 'Next meeting on Friday', time: '3h ago' },
-];
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { Link, Routes, Route } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeIn, slideIn, listItem } from "../utils/animations";
+import { MOCK_DATA } from "../utils/questions";
+import Chat from "../socials/Chat";
+import Community from "../socials/Communities";
 
 export default function Home() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('communities');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("communities");
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
 
@@ -62,27 +27,29 @@ export default function Home() {
         >
           <div className="mb-6">
             <h2 className="text-xl font-bold text-white mb-2">BookPals</h2>
-            <p className="text-gray-400 text-sm">Welcome back, {user?.email?.split('@')[0]}</p>
+            <p className="text-gray-400 text-sm">
+              Welcome back, {user?.email?.split("@")[0]}
+            </p>
           </div>
 
           {/* Tabs */}
           <div className="flex space-x-2 mb-4">
             <button
-              onClick={() => setActiveTab('communities')}
+              onClick={() => setActiveTab("communities")}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'communities'
-                  ? 'bg-primary text-white'
-                  : 'text-gray-400 hover:text-white'
+                activeTab === "communities"
+                  ? "bg-primary text-white"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
               Communities
             </button>
             <button
-              onClick={() => setActiveTab('chats')}
+              onClick={() => setActiveTab("chats")}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'chats'
-                  ? 'bg-primary text-white'
-                  : 'text-gray-400 hover:text-white'
+                activeTab === "chats"
+                  ? "bg-primary text-white"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
               Chats
@@ -92,7 +59,7 @@ export default function Home() {
           {/* Content */}
           <div className="space-y-4">
             <AnimatePresence mode="wait">
-              {activeTab === 'communities' ? (
+              {activeTab === "communities" ? (
                 <motion.div
                   key="communities"
                   variants={fadeIn}
@@ -101,7 +68,7 @@ export default function Home() {
                   exit="exit"
                   className="space-y-4"
                 >
-                  {MOCK_COMMUNITIES.map(community => (
+                  {MOCK_DATA.communities.map((community) => (
                     <motion.div
                       key={community.id}
                       variants={listItem}
@@ -118,8 +85,12 @@ export default function Home() {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                         <div>
-                          <h3 className="text-white font-medium">{community.name}</h3>
-                          <p className="text-gray-400 text-sm">{community.members} members</p>
+                          <h3 className="text-white font-medium">
+                            {community.name}
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            {community.members} members
+                          </p>
                         </div>
                       </button>
                     </motion.div>
@@ -134,7 +105,7 @@ export default function Home() {
                   exit="exit"
                   className="space-y-4"
                 >
-                  {MOCK_CHATS.map(chat => (
+                  {MOCK_DATA.chats.map((chat) => (
                     <motion.div
                       key={chat.id}
                       variants={listItem}
@@ -149,10 +120,16 @@ export default function Home() {
                           {chat.name[0]}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-medium truncate">{chat.name}</h3>
+                          <h3 className="text-white font-medium truncate">
+                            {chat.name}
+                          </h3>
                           <div className="flex items-center justify-between">
-                            <p className="text-gray-400 text-sm truncate">{chat.lastMessage}</p>
-                            <span className="text-gray-500 text-xs">{chat.time}</span>
+                            <p className="text-gray-400 text-sm truncate">
+                              {chat.lastMessage}
+                            </p>
+                            <span className="text-gray-500 text-xs">
+                              {chat.time}
+                            </span>
                           </div>
                         </div>
                       </button>
@@ -179,7 +156,9 @@ export default function Home() {
               {/* Logo */}
               <div className="mb-12 text-center">
                 <h1 className="text-6xl font-bold text-white mb-4">BookPals</h1>
-                <p className="text-xl text-gray-400">Connect with readers who share your interests</p>
+                <p className="text-xl text-gray-400">
+                  Connect with readers who share your interests
+                </p>
               </div>
 
               {/* Search Bar */}
@@ -213,4 +192,4 @@ export default function Home() {
       </div>
     </div>
   );
-} 
+}

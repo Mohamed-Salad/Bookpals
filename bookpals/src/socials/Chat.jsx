@@ -1,23 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { fadeIn, slideIn, listItem } from '../../utils/animations';
+import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeIn, slideIn, listItem } from "../utils/animations";
 
 // Mock messages for demonstration
 const MOCK_MESSAGES = [
-  { id: 1, sender: 'John', content: 'Hey everyone!', timestamp: '10:00 AM' },
-  { id: 2, sender: 'Sarah', content: 'Hi John! How are you?', timestamp: '10:01 AM' },
-  { id: 3, sender: 'John', content: 'I\'m great! Just finished reading a fantastic book.', timestamp: '10:02 AM' },
+  { id: 1, sender: "John", content: "Hey everyone!", timestamp: "10:00 AM" },
+  {
+    id: 2,
+    sender: "Sarah",
+    content: "Hi John! How are you?",
+    timestamp: "10:01 AM",
+  },
+  {
+    id: 3,
+    sender: "John",
+    content: "I'm great! Just finished reading a fantastic book.",
+    timestamp: "10:02 AM",
+  },
 ];
 
 const Chat = ({ chatId }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState(MOCK_MESSAGES);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -30,13 +40,16 @@ const Chat = ({ chatId }) => {
 
     const message = {
       id: messages.length + 1,
-      sender: user?.email?.split('@')[0] || 'Anonymous',
+      sender: user?.email?.split("@")[0] || "Anonymous",
       content: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     setMessages([...messages, message]);
-    setNewMessage('');
+    setNewMessage("");
   };
 
   return (
@@ -57,18 +70,24 @@ const Chat = ({ chatId }) => {
               initial="initial"
               animate="animate"
               exit="exit"
-              className={`flex ${message.sender === user?.email?.split('@')[0] ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.sender === user?.email?.split("@")[0]
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-[70%] rounded-lg p-3 ${
-                  message.sender === user?.email?.split('@')[0]
-                    ? 'bg-primary text-white'
-                    : 'bg-dark-lighter/50 text-white'
+                  message.sender === user?.email?.split("@")[0]
+                    ? "bg-primary text-white"
+                    : "bg-dark-lighter/50 text-white"
                 }`}
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <span className="font-medium">{message.sender}</span>
-                  <span className="text-xs opacity-75">{message.timestamp}</span>
+                  <span className="text-xs opacity-75">
+                    {message.timestamp}
+                  </span>
                 </div>
                 <p>{message.content}</p>
               </div>
@@ -79,7 +98,10 @@ const Chat = ({ chatId }) => {
       </div>
 
       {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="p-4 border-t border-dark-lighter/30">
+      <form
+        onSubmit={handleSendMessage}
+        className="p-4 border-t border-dark-lighter/30"
+      >
         <div className="flex space-x-4">
           <input
             type="text"
@@ -100,4 +122,4 @@ const Chat = ({ chatId }) => {
   );
 };
 
-export default Chat; 
+export default Chat;

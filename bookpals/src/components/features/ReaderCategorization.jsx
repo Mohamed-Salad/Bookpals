@@ -1,59 +1,59 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabaseClient';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../services/supabaseClient";
 
 const QUESTIONS = [
   {
-    id: 'reading_frequency',
-    question: 'How often do you read?',
+    id: "reading_frequency",
+    question: "How often do you read?",
     options: [
-      { value: 'daily', label: 'Daily' },
-      { value: 'weekly', label: 'Weekly' },
-      { value: 'monthly', label: 'Monthly' },
-      { value: 'occasionally', label: 'Occasionally' }
-    ]
+      { value: "daily", label: "Daily" },
+      { value: "weekly", label: "Weekly" },
+      { value: "monthly", label: "Monthly" },
+      { value: "occasionally", label: "Occasionally" },
+    ],
   },
   {
-    id: 'reading_environment',
-    question: 'Where do you prefer to read?',
+    id: "reading_environment",
+    question: "Where do you prefer to read?",
     options: [
-      { value: 'home', label: 'At home' },
-      { value: 'library', label: 'Library' },
-      { value: 'cafe', label: 'Café' },
-      { value: 'anywhere', label: 'Anywhere' }
-    ]
+      { value: "home", label: "At home" },
+      { value: "library", label: "Library" },
+      { value: "cafe", label: "Café" },
+      { value: "anywhere", label: "Anywhere" },
+    ],
   },
   {
-    id: 'reading_format',
-    question: 'What format do you prefer?',
+    id: "reading_format",
+    question: "What format do you prefer?",
     options: [
-      { value: 'physical', label: 'Physical books' },
-      { value: 'ebook', label: 'E-books' },
-      { value: 'audiobook', label: 'Audiobooks' },
-      { value: 'all', label: 'All formats' }
-    ]
+      { value: "physical", label: "Physical books" },
+      { value: "ebook", label: "E-books" },
+      { value: "audiobook", label: "Audiobooks" },
+      { value: "all", label: "All formats" },
+    ],
   },
   {
-    id: 'reading_time',
-    question: 'When do you prefer to read?',
+    id: "reading_time",
+    question: "When do you prefer to read?",
     options: [
-      { value: 'morning', label: 'Morning' },
-      { value: 'afternoon', label: 'Afternoon' },
-      { value: 'evening', label: 'Evening' },
-      { value: 'night', label: 'Night' }
-    ]
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening", label: "Evening" },
+      { value: "night", label: "Night" },
+    ],
   },
   {
-    id: 'reading_style',
-    question: 'How do you approach reading?',
+    id: "reading_style",
+    question: "How do you approach reading?",
     options: [
-      { value: 'casual', label: 'Casual reader' },
-      { value: 'analytical', label: 'Analytical reader' },
-      { value: 'escapist', label: 'Escapist reader' },
-      { value: 'educational', label: 'Educational reader' }
-    ]
-  }
+      { value: "casual", label: "Casual reader" },
+      { value: "analytical", label: "Analytical reader" },
+      { value: "escapist", label: "Escapist reader" },
+      { value: "educational", label: "Educational reader" },
+    ],
+  },
 ];
 
 export default function ReaderCategorization() {
@@ -65,27 +65,27 @@ export default function ReaderCategorization() {
   const [error, setError] = useState(null);
 
   const handleAnswer = (questionId, value) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionId]: value
+      [questionId]: value,
     }));
   };
 
   const handleNext = () => {
     if (currentStep < QUESTIONS.length - 1) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
   const handleSubmit = async () => {
     if (Object.keys(answers).length !== QUESTIONS.length) {
-      setError('Please answer all questions');
+      setError("Please answer all questions");
       return;
     }
 
@@ -93,21 +93,19 @@ export default function ReaderCategorization() {
     setError(null);
 
     try {
-      const { error } = await supabase
-        .from('reader_preferences')
-        .upsert({
-          user_id: user.id,
-          preferences: answers,
-          updated_at: new Date().toISOString()
-        });
+      const { error } = await supabase.from("reader_preferences").upsert({
+        user_id: user.id,
+        preferences: answers,
+        updated_at: new Date().toISOString(),
+      });
 
       if (error) throw error;
 
       // Navigate to home page after successful save
-      navigate('/home');
+      navigate("/home");
     } catch (error) {
-      console.error('Error saving preferences:', error);
-      setError('Failed to save your preferences. Please try again.');
+      console.error("Error saving preferences:", error);
+      setError("Failed to save your preferences. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -132,7 +130,9 @@ export default function ReaderCategorization() {
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((currentStep + 1) / QUESTIONS.length) * 100}%` }}
+                style={{
+                  width: `${((currentStep + 1) / QUESTIONS.length) * 100}%`,
+                }}
               ></div>
             </div>
           </div>
@@ -150,8 +150,8 @@ export default function ReaderCategorization() {
                 onClick={() => handleAnswer(currentQuestion.id, option.value)}
                 className={`w-full p-4 text-left rounded-lg border transition-colors ${
                   answers[currentQuestion.id] === option.value
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-gray-300 hover:border-primary'
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-gray-300 hover:border-primary"
                 }`}
               >
                 {option.label}
@@ -178,10 +178,12 @@ export default function ReaderCategorization() {
             {currentStep === QUESTIONS.length - 1 ? (
               <button
                 onClick={handleSubmit}
-                disabled={loading || Object.keys(answers).length !== QUESTIONS.length}
+                disabled={
+                  loading || Object.keys(answers).length !== QUESTIONS.length
+                }
                 className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Saving...' : 'Finish'}
+                {loading ? "Saving..." : "Finish"}
               </button>
             ) : (
               <button
@@ -197,4 +199,4 @@ export default function ReaderCategorization() {
       </div>
     </div>
   );
-} 
+}

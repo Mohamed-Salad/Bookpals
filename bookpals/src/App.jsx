@@ -1,25 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
-import Navbar from './components/Navbar';
-import LandingPage from './components/features/LandingPage';
-import Login from './components/features/Login';
-import Signup from './components/features/Signup';
-import Home from './components/features/Home';
-import Profile from './components/features/Profile';
-import Interests from './components/features/Interests';
-import ReaderCategorization from './components/features/ReaderCategorization';
-import Communities from './components/features/Communities';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
+import Navbar from "./utils/Navbar";
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Interests from "./components/features/Interests";
+import ReaderCategorization from "./components/features/ReaderCategorization";
+import Communities from "./socials/Communities";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" />;
-  return children;
+  return user ? children : <Navigate to="/login" />;
 };
 
-// App content component to use auth context
+// App content component
 const AppContent = () => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -28,8 +31,6 @@ const AppContent = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
-        {/* Protected Routes */}
         <Route
           path="/interests"
           element={
@@ -70,6 +71,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );
@@ -81,35 +83,7 @@ const App = () => {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen">
-            <Navbar />
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              
-              {/* Protected routes */}
-              <Route path="/interests" element={
-                <ProtectedRoute>
-                  <Interests />
-                </ProtectedRoute>
-              } />
-              <Route path="/home" element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              
-              {/* Fallback route */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </div>
+          <AppContent />
         </Router>
       </AuthProvider>
     </ThemeProvider>
