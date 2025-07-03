@@ -19,13 +19,21 @@ const Login = () => {
     try {
       const { data, error } = await auth.signIn(email, password);
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(error.message || 'Failed to log in. Please try again.');
+        }
+        return;
+      }
 
-      if (data) {
+      if (data?.session) {
         // Successful login
         console.log('Logged in successfully:', data);
-        // Redirect to home page or dashboard
         navigate('/home');
+      } else {
+        setError('Login successful but no session created. Please try again.');
       }
     } catch (err) {
       console.error('Error logging in:', err.message);
