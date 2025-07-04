@@ -6,19 +6,26 @@ import { fadeIn, slideIn } from "../utils/animations";
 import { signIn, signInWithProvider } from "../services/auth";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [values, setValues] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       setError(null);
-      const { user } = await signIn(email, password);
+      const { user } = await signIn(values.email, values.password);
       setUser(user);
       navigate("/home");
     } catch (error) {
@@ -32,9 +39,7 @@ export default function Login() {
     try {
       setLoading(true);
       setError(null);
-      const { user } = await signInWithProvider(provider);
-      setUser(user);
-      navigate("/home");
+      await signInWithProvider(provider);
     } catch (error) {
       setError(error.message || "Failed to sign in with " + provider);
     } finally {
@@ -46,19 +51,19 @@ export default function Login() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-dark via-dark-light to-dark-lighter flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-800 dark:via-slate-900 dark:to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
     >
       <motion.div
         variants={slideIn}
         initial="initial"
         animate="animate"
-        className="max-w-md w-full space-y-8 bg-dark-light/50 backdrop-blur-sm p-8 rounded-lg border border-primary/20"
+        className="max-w-md w-full space-y-8 bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg border border-gray-200 dark:border-primary/20 shadow-xl"
       >
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-white">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Welcome Back
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{" "}
             <Link
               to="/signup"
@@ -69,7 +74,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <AnimatePresence>
             {error && (
               <motion.div
@@ -84,76 +89,61 @@ export default function Login() {
           </AnimatePresence>
 
           <div className="space-y-4">
-            <div>
+            <div className="w-full">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-200"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >
                 Email address
               </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 bg-dark-lighter/50 border border-primary/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                  placeholder="Enter your email"
-                />
-              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={values.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                required
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700/50 border rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors"
+              />
             </div>
 
-            <div>
+            <div className="w-full">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-200"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >
                 Password
               </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 bg-dark-lighter/50 border border-primary/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                  placeholder="Enter your password"
-                />
-              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={values.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700/50 border rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors"
+              />
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? (
-                <div className="flex items-center">
-                  <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
-                  Signing in...
-                </div>
-              ) : (
-                "Sign in"
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
         </form>
 
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-600"></div>
+              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-dark-light/50 text-gray-400">
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                 Or continue with
               </span>
             </div>
@@ -164,7 +154,7 @@ export default function Login() {
               type="button"
               onClick={() => handleSocialLogin("google")}
               disabled={loading}
-              className="w-full inline-flex justify-center py-3 px-4 border border-primary/20 rounded-lg shadow-sm bg-dark-lighter/50 text-sm font-medium text-white hover:bg-dark-lighter/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+              className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <span className="sr-only">Sign in with Google</span>
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -179,7 +169,7 @@ export default function Login() {
               type="button"
               onClick={() => handleSocialLogin("github")}
               disabled={loading}
-              className="w-full inline-flex justify-center py-3 px-4 border border-primary/20 rounded-lg shadow-sm bg-dark-lighter/50 text-sm font-medium text-white hover:bg-dark-lighter/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+              className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <span className="sr-only">Sign in with GitHub</span>
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

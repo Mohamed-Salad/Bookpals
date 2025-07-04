@@ -164,40 +164,33 @@ export const MOCK_DATA = {
 // Questions array for the interests form
 export const READING_QUESTIONS = [
   {
-    id: "username",
-    type: "text",
-    label: "Choose your username",
-    placeholder: "Enter your username",
-    description: "This will be your unique identifier in the community",
-    validation: validateUsername,
-  },
-  {
     id: "readingType",
-    type: "single-select",
+    type: "button-select", // New value
     label: "What type of reading do you prefer?",
     options: READING_TYPES,
     required: true,
   },
+  // And update the other questions similarly
   {
     id: "readingFrequency",
-    type: "single-select",
+    type: "button-select", // Change from single-select
     label: "How often do you read?",
     options: FREQUENCIES,
     required: true,
   },
   {
     id: "readingTime",
-    type: "single-select",
+    type: "button-select", // Change from single-select
     label: "When do you prefer to read?",
     options: READING_TIMES,
-    required: false,
+    required: true,
   },
   {
     id: "readingFormat",
-    type: "single-select",
+    type: "button-select", // Change from single-select
     label: "What's your preferred reading format?",
     options: READING_FORMATS,
-    required: false,
+    required: true,
   },
   {
     id: "genres",
@@ -223,26 +216,34 @@ export const READING_QUESTIONS = [
 ];
 
 export const formatUserPreferences = (formData) => {
-  const requiredFields = [
-    "username",
-    "reading_type",
-    "reading_frequency",
-    "genres",
-  ];
-  const missingFields = requiredFields.filter((field) => !formData[field]);
+  console.log(
+    "[Questions] Formatting user preferences from form data:",
+    formData
+  );
+
+  // Check required fields
+  const requiredFields = ["readingType", "readingFrequency"];
+
+  const missingFields = [];
+  if (!formData.readingType) missingFields.push("reading_type");
+  if (!formData.readingFrequency) missingFields.push("reading_frequency");
 
   if (missingFields.length > 0) {
+    console.warn("[Questions] Missing required fields:", missingFields);
     throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
   }
 
-  return {
-    username: formData.username,
+  // Format the data
+  const formattedData = {
     reading_type: formData.readingType,
     reading_frequency: formData.readingFrequency,
     reading_time: formData.readingTime || null,
     reading_format: formData.readingFormat || null,
-    genres: formData.genres,
+    genres: formData.genres || [],
     favorite_authors: formData.favoriteAuthors || null,
     reading_goals: formData.readingGoals || null,
   };
+
+  console.log("[Questions] Formatted preferences data:", formattedData);
+  return formattedData;
 };

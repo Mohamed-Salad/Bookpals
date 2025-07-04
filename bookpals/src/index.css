@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Tailwind Directives - these need to come before any other styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,4 +37,26 @@
   }
 }
 
-/* Remove the utilities layer as these classes are already available through Tailwind's theme */
+/* Flip card animation styles */
+.perspective-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}

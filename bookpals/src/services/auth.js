@@ -1,5 +1,6 @@
 import { supabase } from "./supabaseClient";
 import { createProfile } from "./database";
+import { streamClient } from "./streamClient";
 
 // Rate limiting configuration
 const RATE_LIMIT = {
@@ -65,13 +66,21 @@ export const signIn = async (email, password) => {
 
 export const signOut = async () => {
   try {
+    // First disconnect from chat if connected
+    if (streamClient.userID) {
+      console.log("📤 Disconnecting from chat before logout");
+      await streamClient.disconnectUser();
+    }
+
+    // Then sign out from Supabase
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
 
     // Clear any stored sensitive data
     localStorage.removeItem("user_preferences");
+    console.log("✅ Successfully signed out and disconnected from chat");
   } catch (error) {
-    console.error("Signout error:", error);
+    console.error("❌ Signout error:", error);
     throw error;
   }
 };
@@ -149,6 +158,85 @@ export const signInWithProvider = async (provider) => {
   }
 };
 
+export const signInWithGithub = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+  });
+  if (error) throw error;
+  return data;
+};
+
+export const signInWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+  });
+  if (error) throw error;
+  return data;
+};
+
+export const handleAuthCallback = async () => {
+  try {
+    console.log("[Auth] Processing auth callback");
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error("[Auth] Error getting session:", error);
+      throw error;
+    }
+
+    if (!session) {
+      console.error("[Auth] No session found in callback");
+      throw new Error("No session found");
+    }
+
+    const { user } = session;
+    console.log(`[Auth] User authenticated: ${user.id}`);
+
+    // Check if user already has a profile
+    console.log(`[Auth] Checking if profile exists for user ${user.id}`);
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError && profileError.code !== "PGRST116") {
+      // Only log if it's not a "not found" error
+      console.error("[Auth] Error checking profile:", profileError);
+    }
+
+    // If no profile, create one with data from OAuth
+    if (!profile) {
+      console.log(`[Auth] No profile found for user ${user.id}, creating one`);
+      const username =
+        user.user_metadata?.preferred_username ||
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        user.email?.split("@")[0] ||
+        `user_${Math.random().toString(36).substring(2, 8)}`;
+
+      console.log(`[Auth] Creating profile with username: ${username}`);
+      try {
+        await createProfile(user.id, username);
+        console.log(`[Auth] Profile created successfully for ${user.id}`);
+      } catch (createError) {
+        console.error("[Auth] Error creating profile:", createError);
+        // Continue anyway since the user is authenticated
+      }
+    } else {
+      console.log(`[Auth] Existing profile found for user ${user.id}`);
+    }
+
+    return { user, session };
+  } catch (error) {
+    console.error("[Auth] Error in auth callback:", error);
+    throw error;
+  }
+};
+
 // Helper function for rate limiting
 export const checkRateLimit = (action) => {
   const now = Date.now();
@@ -168,7 +256,33 @@ export const checkRateLimit = (action) => {
   }
 };
 
-// Default export with all functions
+export const deleteUser = async (userId) => {
+  try {
+    // First, delete the user's profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", userId);
+
+    if (profileError) throw profileError;
+
+    // Then, delete the user from the auth system
+    // This requires admin rights and should be done via a secure server-side function
+    // Here we're adding the client-side part, but you'll need to set up a serverless function
+    // to securely delete the user from auth.users
+    console.log("User profile deleted. User ID:", userId);
+    console.log(
+      "To completely remove the user, you need to delete them from the auth system via the Supabase dashboard or using admin API."
+    );
+
+    return { success: true, message: "User profile deleted successfully" };
+  } catch (error) {
+    console.error("Delete user error:", error);
+    throw error;
+  }
+};
+
+// Default export with all functions for backward compatibility
 const authService = {
   signUp,
   signIn,
@@ -179,6 +293,10 @@ const authService = {
   refreshSession,
   checkRateLimit,
   signInWithProvider,
+  signInWithGithub,
+  signInWithGoogle,
+  handleAuthCallback,
+  deleteUser,
 };
 
 export default authService;
