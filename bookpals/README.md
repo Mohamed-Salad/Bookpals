@@ -1,185 +1,139 @@
-# Documentation Guide for BookPals Project
+# BookPals
 
-Hey future me! 👋 You might be confused about all these documentation files, so let me break it down for you. This is your instruction manual for understanding and using each documentation file.
+BookPals is a platform designed to connect book lovers through profile-based matching and community-driven discussions. This project aims to create a vibrant community where readers can find others with similar interests and engage in meaningful conversations about literature.
 
-## Quick Start
+## Project Overview
 
-1. Read this file first
-2. Review each document in the order listed below
-3. Use the search function to find specific implementations
-4. Reference these docs when implementing new features
+This application allows users to:
+- Create a profile detailing their reading habits and favorite genres.
+- Discover and connect with other users based on shared interests.
+- Participate in community discussion forums.
+- Create and join smaller, focused book clubs or groups.
 
-## Documentation Files Overview
+This project was developed as part of a dissertation submission.
 
-### 1. API_REFACTOR.md
+## Technologies Used
 
-**What is it?**
+- **Frontend:** React, Vite, TailwindCSS
+- **Backend:** Node.js (if applicable, specify framework e.g., Express), Supabase (for BaaS features like Auth and Database)
+- **Database:** PostgreSQL (managed via Supabase)
+- **Authentication:** Supabase Auth
+- **Real-time Features (Optional):** Supabase Realtime or GetStream (as initially planned)
 
-- Complete guide for the API architecture refactoring
-- Contains implementation patterns and best practices
+## Getting Started
 
-**When to use it?**
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-- When working with API calls
-- When adding new API endpoints
-- When fixing API-related bugs
-- When optimizing API performance
+### Prerequisites
 
-**How to use it?**
+- Node.js (v18 or later recommended)
+- npm (usually comes with Node.js)
+- Git
 
-1. Look at the directory structure section first
-2. Find the relevant service you need
-3. Copy and adapt the implementation patterns
-4. Follow the error handling guidelines
+### Installation
 
-### 2. SOCIAL_FEATURES_GUIDE.md
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd bookpals
+    ```
 
-**What is it?**
+2.  **Install dependencies:**
+    Navigate to the project directory and install the necessary packages.
+    ```bash
+    npm install
+    ```
 
-- Blueprint for all social features
-- Contains service implementations and patterns
+3.  **Set up Environment Variables:**
+    Create a `.env` file in the root of the project and add your Supabase project URL and anon key. You can find these in your Supabase project settings (API section).
+    ```env
+    VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+    VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+    ```
+    *Note: The `VITE_` prefix is important if you are using Vite, as it exposes these variables to your frontend code.*
 
-**When to use it?**
+### Running the Application Locally
 
-- When implementing any social feature (chat, likes, comments, etc.)
-- When adding new social interactions
-- When debugging social features
+1.  **Start the Frontend Development Server (Vite):**
+    This command will start the React application, typically on `http://localhost:5173` (Vite's default) or `http://localhost:3000`. Check the console output for the exact URL.
+    ```bash
+    npm run dev
+    ```
 
-**How to use it?**
+2.  **(If applicable) Start the Backend Server:**
+    If you have a separate Node.js backend (e.g., for custom API routes not handled by Supabase functions), you might have a command like:
+    ```bash
+    npm run server
+    # or
+    # node server.js
+    ```
+    *Specify the correct command based on your `package.json`.*
 
-1. Find the feature you're working on
-2. Review the service implementation
-3. Check the database requirements
-4. Follow the implementation steps
+3.  **Access the Application:**
+    Open your web browser and navigate to the URL provided by the `npm run dev` command (e.g., `http://localhost:5173`).
 
-### 3. UI_UX_DESIGN_GUIDE.md
+## Database Setup
 
-**What is it?**
+The database schema is managed through Supabase. Key tables include:
+- `profiles`: Stores user profile information, linked to `auth.users`.
+- `user_preferences`: Stores user reading preferences and categorization data.
+- `communities`: Information about different communities or book clubs.
+- `discussions`: Stores main discussion threads within communities.
+- `comments`: Stores replies to discussion threads.
+- `reactions`: Tracks user reactions (likes) to discussions or comments.
 
-- Complete UI component library
-- Design system specifications
-- Component implementation examples
+Migrations (if used) can be found in the `supabase/migrations` folder and applied using the Supabase CLI.
 
-**When to use it?**
+## Testing
 
-- When creating new UI components
-- When maintaining consistency in design
-- When implementing responsive layouts
-- When adding new features that need UI
+-   **Run Unit/Integration Tests (Jest/Vitest):**
+    ```bash
+    npm test
+    ```
+    *(Adjust command based on your test runner)*
 
-**How to use it?**
+-   **(Optional) Run End-to-End Tests (Cypress):**
+    ```bash
+    npm run cypress:open
+    # or similar command defined in package.json
+    ```
 
-1. Check the component examples
-2. Copy the base styles and structure
-3. Customize for your specific needs
-4. Follow the responsive design patterns
+## Project Structure
 
-### 4. DATABASE_SCHEMA.md
+```
+/
+├── public/             # Static assets
+├── src/
+│   ├── components/     # Reusable React components
+│   ├── pages/          # Page-level components (routed views)
+│   ├── services/       # API calls, Supabase client, logic (e.g., database.js, recommendationService.js)
+│   ├── contexts/       # React Context providers (e.g., AuthContext)
+│   ├── hooks/          # Custom React Hooks
+│   ├── styles/         # Global styles, Tailwind config
+│   └── main.jsx        # Main application entry point
+├── supabase/           # Supabase specific files (migrations, functions if used)
+├── .env.example        # Example environment variables
+├── .gitignore          # Files ignored by Git
+├── index.html          # HTML entry point (for Vite)
+├── package.json        # Project dependencies and scripts
+├── README.md           # This file
+└── vite.config.js      # Vite configuration
+```
 
-**What is it?**
+## Notes for Supervisors/Invigilators
 
-- Complete database structure
-- Table relationships
-- Indexes and optimizations
-- SQL functions and triggers
+-   **Environment Setup:** Ensure the `.env` file is correctly configured with Supabase credentials before running the application.
+-   **Supabase Backend:** Most backend logic (database interactions, authentication) is handled directly via the Supabase client library on the frontend or through Supabase database functions/triggers, minimizing the need for a separate traditional backend server unless explicitly built.
+-   **Key Features Location:**
+    -   User Authentication: `src/contexts/AuthContext.jsx`, Supabase client usage.
+    -   Recommendations: `src/services/recommendationService.js`, `src/components/RecommendedUsers.jsx`, `src/components/RecommendedCommunities.jsx`.
+    -   Community/Discussions: `src/pages/CommunityView.jsx`, `src/components/DiscussionList.jsx`, `src/services/database.js`.
+-   **Data Population:** Initial data (e.g., user profiles, communities) might be required for full feature testing. Check Supabase tables or seed scripts if available.
+onedrive location:
 
-**When to use it?**
+https://cityuni-my.sharepoint.com/:f:/r/personal/mohamed_salad_2_city_ac_uk/Documents/Year%203/IN3007%20Personal%20Project/Mohamed%20Salad%20Code%20Submission?csf=1&web=1&e=bCYkj8
 
-- When creating new tables
-- When modifying existing schema
-- When optimizing queries
-- When setting up relationships
+You second terminal that generates tokens but I forgot the name
+---
 
-**How to use it?**
-
-1. Review the relevant table schema
-2. Check the relationships
-3. Copy the SQL statements
-4. Follow the indexing patterns
-
-### 5. STATE_MANAGEMENT.md
-
-**What is it?**
-
-- State management patterns
-- React hooks and contexts
-- Performance optimizations
-- Error handling strategies
-
-**When to use it?**
-
-- When managing application state
-- When creating new features that need state
-- When optimizing performance
-- When handling errors
-
-**How to use it?**
-
-1. Find the relevant state pattern
-2. Copy the hook or context implementation
-3. Adapt for your specific use case
-4. Follow the optimization guidelines
-
-## Common Scenarios
-
-### "I need to add a new feature"
-
-1. Check SOCIAL_FEATURES_GUIDE.md for similar features
-2. Review DATABASE_SCHEMA.md for required tables
-3. Use STATE_MANAGEMENT.md for state handling
-4. Follow UI_UX_DESIGN_GUIDE.md for the interface
-
-### "I'm fixing a bug"
-
-1. Check API_REFACTOR.md for correct patterns
-2. Review STATE_MANAGEMENT.md for error handling
-3. Verify against DATABASE_SCHEMA.md for data integrity
-4. Ensure UI follows UI_UX_DESIGN_GUIDE.md
-
-### "I'm optimizing performance"
-
-1. Check DATABASE_SCHEMA.md for indexes
-2. Review STATE_MANAGEMENT.md for memoization
-3. Verify API patterns in API_REFACTOR.md
-4. Check UI optimizations in UI_UX_DESIGN_GUIDE.md
-
-## Implementation Order
-
-When implementing new features, follow this order:
-
-1. Database schema (DATABASE_SCHEMA.md)
-2. API endpoints (API_REFACTOR.md)
-3. State management (STATE_MANAGEMENT.md)
-4. UI components (UI_UX_DESIGN_GUIDE.md)
-5. Social features integration (SOCIAL_FEATURES_GUIDE.md)
-
-## Tips and Tricks
-
-1. Use search to find specific implementations
-2. Copy-paste code patterns and adapt them
-3. Always check relationships in DATABASE_SCHEMA.md
-4. Follow error handling patterns consistently
-5. Keep UI components consistent with the design system
-
-## Warning Signs
-
-- If you're writing raw SQL without checking DATABASE_SCHEMA.md
-- If you're creating new API patterns without checking API_REFACTOR.md
-- If you're handling state differently than STATE_MANAGEMENT.md
-- If your UI doesn't match UI_UX_DESIGN_GUIDE.md
-
-## Need Help?
-
-1. Search the relevant doc file first
-2. Check the implementation examples
-3. Follow the patterns and guidelines
-4. If still stuck, ask for clarification
-
-Remember: These docs are your blueprint - they contain everything you need to maintain consistency and best practices throughout the project. Don't reinvent the wheel; use these patterns!
-
-Would you like me to:
-
-1. Add more specific scenarios?
-2. Clarify any section?
-3. Add more implementation examples?
-4. Add troubleshooting guides?
+*This README provides a comprehensive guide to understanding, installing, and running the BookPals application.*
