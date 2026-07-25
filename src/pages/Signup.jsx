@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { fadeIn, slideIn } from "../utils/animations";
+import { slideIn } from "../utils/animations";
 import { validateUsername } from "../utils/questions";
 import { signUp, signInWithProvider } from "../services/auth";
+import { Card } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -77,89 +80,71 @@ export default function Signup() {
       animate={{ opacity: 1 }}
       className="min-h-screen bg-paper flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
     >
-      <motion.div
-        variants={slideIn}
-        initial="initial"
-        animate="animate"
-        className="max-w-md w-full space-y-8 bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg border border-gray-200 dark:border-primary/20 shadow-xl"
-      >
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-primary hover:text-primary-dark"
-            >
-              Sign in here
-            </Link>
-          </p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="rounded-lg bg-red-500/10 border border-red-500/20 p-4"
-              >
-                <div className="text-sm text-red-400">{error}</div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="space-y-4">
-            <input
-              id="username"
-              name="username"
-              type="text"
-              value={values.username}
-              onChange={handleChange}
-              placeholder="Choose a username"
-              className="w-full px-4 py-2 bg-white dark:bg-gray-700/50 border rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors"
-            />
-            {formErrors.username && (
-              <span className="text-red-500">{formErrors.username}</span>
-            )}
-
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={values.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 bg-white dark:bg-gray-700/50 border rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors"
-            />
-            {formErrors.email && (
-              <span className="text-red-500">{formErrors.email}</span>
-            )}
-
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={values.password}
-              onChange={handleChange}
-              placeholder="Create a password"
-              className="w-full px-4 py-2 bg-white dark:bg-gray-700/50 border rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors"
-            />
-            {formErrors.password && (
-              <span className="text-red-500">{formErrors.password}</span>
-            )}
+      <motion.div variants={slideIn} initial="initial" animate="animate" className="max-w-md w-full">
+        <Card className="space-y-8 p-8 backdrop-blur-sm bg-surface/90">
+          <div>
+            <h2 className="font-display text-center text-3xl font-extrabold text-ink">
+              Create your account
+            </h2>
+            <p className="mt-2 text-center text-sm text-ink-muted">
+              Already have an account?{" "}
+              <Link to="/login" className="font-medium text-accent hover:text-accent-dark">
+                Sign in here
+              </Link>
+            </p>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800"
-            disabled={loading}
-          >
-            {loading ? "Creating account..." : "Create account"}
-          </button>
-        </form>
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="rounded-lg bg-red-500/10 border border-red-500/20 p-4"
+                >
+                  <div className="text-sm text-red-400">{error}</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="space-y-4">
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                label="Username"
+                value={values.username}
+                onChange={handleChange}
+                placeholder="Choose a username"
+                error={formErrors.username}
+              />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email address"
+                value={values.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                error={formErrors.email}
+              />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                label="Password"
+                value={values.password}
+                onChange={handleChange}
+                placeholder="Create a password"
+                error={formErrors.password}
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Creating account..." : "Create account"}
+            </Button>
+          </form>
+        </Card>
       </motion.div>
     </motion.div>
   );
