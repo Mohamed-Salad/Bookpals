@@ -4,7 +4,7 @@ import { useChat } from "../context/ChatContext";
 import { useAuth } from "../context/AuthContext";
 import { LoadingIndicator } from "stream-chat-react";
 import "stream-chat-react/dist/css/v2/index.css";
-import UnifiedSidebar from "../components/Side-Top bars/UnifiedSidebar";
+import UnifiedSidebar from "../components/layout/UnifiedSidebar";
 import Conversation from "../components/chat/Conversation";
 
 const ChatPage = () => {

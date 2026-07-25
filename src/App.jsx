@@ -8,14 +8,14 @@ import {
 import { createContext, useState, useContext, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import Navbar from "./components/Side-Top bars/Navbar";
-import UnifiedSidebar from "./components/Side-Top bars/UnifiedSidebar";
+import Navbar from "./components/layout/Navbar";
+import UnifiedSidebar from "./components/layout/UnifiedSidebar";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-import Interests from "./components/Categorisation/Interests";
+import Interests from "./components/onboarding/Interests";
 import Communities from "./components/community/Communities";
 import CommunityView from "./components/community/CommunityView";
 import CreateGroupChat from "./components/socials/CreateGroupChat";

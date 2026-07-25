@@ -6,8 +6,8 @@ import { motion } from "framer-motion";
 import { useChat } from "../context/ChatContext";
 import Community from "../components/community/Communities";
 import ChatPage from "../pages/ChatRooms";
-import RecommendedUsers from "../components/Reccomendations/RecommendedUsers";
-import RecommendedCommunities from "../components/Reccomendations/RecommendedCommunities";
+import RecommendedUsers from "../components/recommendations/RecommendedUsers";
+import RecommendedCommunities from "../components/recommendations/RecommendedCommunities";
 
 export default function Home() {
   const { user } = useAuth();
