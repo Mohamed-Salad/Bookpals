@@ -317,7 +317,7 @@ git status             # .env.local NEVER staged
 | Data loss | LOW | DB near-empty; migrations are additive; never run destructive SQL without explicit approval from Mr Salad |
 
 ## Acceptance
-- [ ] P1: build green on React 19/Vite 7/Tailwind 4; security fixes in; one questionnaire
+- [x] P1: build green on React 19/Vite 7/Tailwind 4; security fixes in; one questionnaire (done 2026-07-25, commits e75479c..4d6553a)
 - [ ] P2: design tokens + ui/ primitives on every route; Home is a feed
 - [ ] P3: match_users RPC live; /matches page with score breakdowns
 - [ ] P4: inclusive taxonomy; 4-step onboarding; keyboard-only pass
