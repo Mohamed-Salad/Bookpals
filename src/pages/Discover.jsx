@@ -1,9 +1,6 @@
-// src/pages/Discover.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  searchUsersByUsername,
-  searchCommunities,
   searchAll,
   getAllUsers,
   getUserCommunityMemberships,
@@ -11,46 +8,12 @@ import {
 } from "../services/searchService";
 import { useAuth } from "../context/AuthContext";
 import UserCard from "../components/UserCard";
-import { motion, AnimatePresence } from "framer-motion";
 import CommunityCard from "../components/socials/CommunityCard";
-import { useChat } from "../context/ChatContext";
 import CreateCommunityModal from "../components/community/CreateCommunityModal";
-
-// Tab selector component
-const TabSelector = ({ activeTab, setActiveTab }) => (
-  <div className="flex space-x-2 mb-6">
-    <button
-      onClick={() => setActiveTab("all")}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        activeTab === "all"
-          ? "bg-primary text-white"
-          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-      }`}
-    >
-      All
-    </button>
-    <button
-      onClick={() => setActiveTab("readers")}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        activeTab === "readers"
-          ? "bg-primary text-white"
-          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-      }`}
-    >
-      Readers
-    </button>
-    <button
-      onClick={() => setActiveTab("communities")}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        activeTab === "communities"
-          ? "bg-primary text-white"
-          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-      }`}
-    >
-      Communities
-    </button>
-  </div>
-);
+import { Tabs, TabsList, TabsTrigger } from "../components/ui/Tabs";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { Skeleton } from "../components/ui/Skeleton";
 
 // Main Discover component
 export default function Discover() {
@@ -65,7 +28,6 @@ export default function Discover() {
   const [activeTab, setActiveTab] = useState("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [userMemberships, setUserMemberships] = useState([]);
-  const { isConnected } = useChat();
 
   // Load all users and communities on initial render
   useEffect(() => {
@@ -200,63 +162,60 @@ export default function Discover() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-          <h1 className="text-3xl font-bold mb-2">Discover</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Find readers and communities to connect with
-          </p>
+            <h1 className="font-display text-3xl font-bold text-ink mb-2">Discover</h1>
+            <p className="text-ink-muted">Find readers and communities to connect with</p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            Create Community
-          </button>
+          <Button onClick={() => setShowCreateModal(true)}>Create Community</Button>
         </div>
 
         {/* Search Bar */}
         <div className="mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                handleSearch(e.target.value);
-              }}
-              placeholder={`Search for ${
-                activeTab === "readers"
-                  ? "readers"
-                  : activeTab === "communities"
-                  ? "communities"
-                  : "readers or communities"
-              }...`}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-            />
-          </div>
+          <Input
+            type="text"
+            aria-label="Search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              handleSearch(e.target.value);
+            }}
+            placeholder={`Search for ${
+              activeTab === "readers"
+                ? "readers"
+                : activeTab === "communities"
+                ? "communities"
+                : "readers or communities"
+            }...`}
+          />
         </div>
 
         {/* Tabs */}
-        <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="readers">Readers</TabsTrigger>
+            <TabsTrigger value="communities">Communities</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Results */}
-        {error && (
-          <div className="text-red-600 dark:text-red-400 mb-4">{error}</div>
-        )}
+        {error && <div className="text-red-600 dark:text-red-400 mb-4">{error}</div>}
 
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
           </div>
         ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeTab === "all" && (
               <>
-                    {results.users.map((user) => (
+                {results.users.map((user) => (
                   <UserCard key={user.id} user={user} />
                 ))}
-                    {results.communities.map((community) => (
+                {results.communities.map((community) => (
                   <CommunityCard
-                        key={community.id}
+                    key={community.id}
                     community={community}
                     userMemberships={userMemberships}
                   />
@@ -264,9 +223,7 @@ export default function Discover() {
               </>
             )}
             {activeTab === "readers" &&
-              results.users.map((user) => (
-                <UserCard key={user.id} user={user} />
-              ))}
+              results.users.map((user) => <UserCard key={user.id} user={user} />)}
             {activeTab === "communities" &&
               results.communities.map((community) => (
                 <CommunityCard
