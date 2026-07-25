@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useChat } from "../context/ChatContext";
@@ -8,11 +6,9 @@ import Community from "../components/community/Communities";
 import ChatPage from "../pages/ChatRooms";
 import RecommendedUsers from "../components/recommendations/RecommendedUsers";
 import RecommendedCommunities from "../components/recommendations/RecommendedCommunities";
+import { Button } from "../components/ui/Button";
 
 export default function Home() {
-  const { user } = useAuth();
-  const { isDarkMode } = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const location = useLocation();
@@ -56,17 +52,17 @@ export default function Home() {
             >
               {/* Header */}
               <div className="mb-12 text-center">
-                <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
+                <h1 className="font-display text-4xl font-bold text-ink mb-4">
                   Welcome to BookPals
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-400">
+                <p className="text-xl text-ink-muted">
                   Connect with readers who share your interests
                 </p>
               </div>
 
               {/* Recommendations Section */}
               <div className="mb-12 max-w-4xl mx-auto w-full">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+                <h2 className="font-display text-2xl font-bold text-ink mb-6">
                   Recommended Readers
                 </h2>
                 <RecommendedUsers limit={6} />
@@ -74,7 +70,7 @@ export default function Home() {
 
               {/* Added Recommended Communities Section */}
               <div className="mb-12 max-w-4xl mx-auto w-full">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+                <h2 className="font-display text-2xl font-bold text-ink mb-6">
                   Suggested Communities
                 </h2>
                 <RecommendedCommunities limit={3} />
@@ -82,10 +78,7 @@ export default function Home() {
 
               {/* Quick Actions */}
               <div className="flex flex-wrap gap-4 justify-center">
-                <button
-                  onClick={() => navigate("/discover")}
-                  className="flex items-center gap-2 px-5 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors shadow-md"
-                >
+                <Button onClick={() => navigate("/discover")} className="shadow-md">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -100,11 +93,12 @@ export default function Home() {
                     />
                   </svg>
                   Discover More Readers
-                </button>
+                </Button>
 
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => navigate("/discover?tab=communities")}
-                  className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+                  className="shadow-md"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -115,11 +109,12 @@ export default function Home() {
                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                   </svg>
                   Join Communities
-                </button>
+                </Button>
 
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => navigate("/chat")}
-                  className="flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
+                  className="shadow-md"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +129,7 @@ export default function Home() {
                     />
                   </svg>
                   View Messages
-                </button>
+                </Button>
               </div>
             </motion.div>
           )}
