@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getCommunityDiscussions } from "../../services/database";
 import PostItem from "./PostItem";
 import ErrorBoundary from "../../components/ErrorBoundary";
-import { useChat } from "../../context/ChatContext";
 import { Link } from "react-router-dom";
+import { EmptyState } from "../ui/EmptyState";
+import { Skeleton } from "../ui/Skeleton";
 
 const Communities = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { currentUser } = useAuth();
-  const { isConnected } = useChat();
+  const { user } = useAuth();
 
   const loadPosts = async () => {
-      setLoading(true);
+    setLoading(true);
     setError(null);
     try {
-      const postsData = await getCommunityDiscussions(currentUser.id);
+      const postsData = await getCommunityDiscussions(user.id);
       setPosts(postsData);
     } catch (error) {
       console.error("Error loading posts:", error);
@@ -35,14 +35,14 @@ const Communities = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Community Posts</h1>
+          <h1 className="font-display text-2xl font-bold text-ink">Community Posts</h1>
           <Link
             to="/discover?tab=communities"
-            className="text-primary hover:text-primary-dark transition-colors"
+            className="text-accent hover:text-accent-dark transition-colors"
           >
             Find Communities
           </Link>
-          </div>
+        </div>
 
         <ErrorBoundary>
           {error && (
@@ -52,15 +52,18 @@ const Communities = () => {
           )}
 
           {loading ? (
-            <div className="flex justify-center my-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="space-y-4 mt-8">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
             </div>
           ) : (
             <div className="space-y-4 mt-8">
               {posts.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                  No posts yet. Join a community to start discussing!
-              </div>
+                <EmptyState
+                  title="No posts yet"
+                  description="Join a community to start discussing!"
+                />
               ) : (
                 posts.map((post) => (
                   <ErrorBoundary key={post.id}>
@@ -71,7 +74,7 @@ const Communities = () => {
             </div>
           )}
         </ErrorBoundary>
-        </div>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ const PostCreator = ({ onPostCreated }) => {
   const [content, setContent] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +14,7 @@ const PostCreator = ({ onPostCreated }) => {
 
     setIsSubmitting(true);
     try {
-      await createDiscussion(currentUser.id, currentUser.id, content);
+      await createDiscussion(user.id, user.id, content);
       setContent("");
       setSelectedFile(null);
       onPostCreated?.();
