@@ -68,12 +68,6 @@ export function AuthProvider({ children }) {
     user,
     loading,
     connectionError,
-    signIn: async (email, password) => {
-      /* ... your signIn logic ... */
-    },
-    signUp: async (email, password, username) => {
-      /* ... your signUp logic ... */
-    },
     signOut: async () => {
       await authService.signOut();
       setUser(null);
