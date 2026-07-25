@@ -160,7 +160,7 @@ const CommunityView = () => {
           {" "}
           {/* Applied max-width, mx-auto, px */}
         {/* Banner */}
-          <div className="mb-4 bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md overflow-hidden h-32 relative">
+          <div className="mb-4 bg-gradient-to-r from-accent to-accent-dark rounded-lg shadow-md overflow-hidden h-32 relative">
           {community.banner_url ? (
             <img
               src={community.banner_url}

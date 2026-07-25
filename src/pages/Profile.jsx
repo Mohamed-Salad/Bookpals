@@ -79,7 +79,7 @@ const Profile = () => {
     setShowTutorial(false);
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-800 dark:via-slate-900 dark:to-black py-12 px-4">
+    <div className="min-h-screen bg-paper py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
           My Profile
@@ -125,7 +125,7 @@ const Profile = () => {
         </AnimatePresence>
         <div className="bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl overflow-hidden">
           {/* Profile Header */}
-          <div className="relative h-48 bg-gradient-to-r from-primary to-purple-600">
+          <div className="relative h-48 bg-gradient-to-r from-accent to-accent-dark">
             <div className="absolute -bottom-16 left-8">
               <div className="relative group w-32 h-32">
                 {formData.avatar_url ? (

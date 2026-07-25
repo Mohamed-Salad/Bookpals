@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "@fontsource-variable/fraunces";
 @import "tailwindcss";
 
 /* ThemeContext.jsx toggles a .dark class on <html> - opt back into
@@ -6,6 +7,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Legacy tokens - still referenced by pages not yet swept onto the new
+     palette in Phase 2 Task 2.2. Remove once every page/component below
+     has been migrated off primary/secondary/dark. */
   --color-primary: #6366f1;
   --color-primary-dark: #4f46e5;
   --color-secondary: #8b5cf6;
@@ -14,21 +18,39 @@
   --color-dark-light: #1f2937;
   --color-dark-lighter: #374151;
 
-  --background-image-aurora-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
-
   --blur-xs: 2px;
 
-  --animate-aurora-shine: aurora-shine 8s ease-in-out infinite;
+  /* New design-system tokens - a warm literary palette instead of the old
+     indigo/purple SaaS-template look. Light-mode values here; dark-mode
+     overrides for the same custom properties are below in the .dark block,
+     so bg-paper/text-ink/etc. "just work" in both themes with no dark:
+     prefix needed. */
+  --color-ink: #1a1612;
+  --color-ink-muted: #746c60;
+  --color-paper: #faf7f2;
+  --color-surface: #ffffff;
+  --color-surface-raised: #fff9f0;
+  --color-accent: #d97706;
+  --color-accent-dark: #b45309;
+
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
 }
 
-@keyframes aurora-shine {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+.dark {
+  --color-ink: #f5f1e8;
+  --color-ink-muted: #a89f8f;
+  --color-paper: #16130f;
+  --color-surface: #211d17;
+  --color-surface-raised: #2b251d;
+  --color-accent: #f59e0b;
+  --color-accent-dark: #d97706;
 }
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-paper text-ink antialiased;
+    font-family: var(--font-sans);
   }
 }
 

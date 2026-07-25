@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const LandingPage = () => {
   return (
     <div className="animate-fade-in">
-      <section className="relative bg-gradient-to-b from-gray-50 to-white py-20 sm:py-32">
+      <section className="relative bg-paper py-20 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-slide-up">

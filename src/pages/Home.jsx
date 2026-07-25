@@ -43,7 +43,7 @@ export default function Home() {
       {/* Main content layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Content */}
-        <div className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-800 dark:via-slate-900 dark:to-black">
+        <div className="flex-1 flex flex-col overflow-y-auto bg-paper">
           {selectedChat ? (
             <ChatPage chatId={selectedChat} />
           ) : selectedCommunity ? (

@@ -51,7 +51,7 @@ export default function Login() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-800 dark:via-slate-900 dark:to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-paper flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
     >
       <motion.div
         variants={slideIn}
