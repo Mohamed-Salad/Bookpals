@@ -16,7 +16,6 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Interests from "./components/Categorisation/Interests";
-import ReaderCategorization from "./components/Categorisation/ReaderCategorization";
 import Communities from "./components/community/Communities";
 import CommunityView from "./components/community/CommunityView";
 import CreateGroupChat from "./components/socials/CreateGroupChat";
@@ -117,14 +116,6 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/reader-categorization"
-                element={
-                  <ProtectedRoute>
-                    <ReaderCategorization />
                   </ProtectedRoute>
                 }
               />

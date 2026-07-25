@@ -38,7 +38,6 @@ const Navbar = () => {
     "/profile",
     "/interests",
     "/communities",
-    "/reader-categorization",
     "/search",
   ];
 
