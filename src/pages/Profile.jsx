@@ -1,13 +1,16 @@
-// In src/pages/Profile.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
-import { fadeIn, slideIn } from "../utils/animations";
 import {
   updateProfile,
   updateProfilePicture,
   getProfile,
 } from "../services/database";
+import { Card } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { Avatar } from "../components/ui/Avatar";
+import { Modal } from "../components/ui/Modal";
+
 const Profile = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -20,6 +23,7 @@ const Profile = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -40,6 +44,7 @@ const Profile = () => {
     };
     fetchProfile();
   }, [user]);
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -60,6 +65,7 @@ const Profile = () => {
       }
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -75,72 +81,44 @@ const Profile = () => {
       setFormLoading(false);
     }
   };
+
   const dismissTutorial = () => {
     setShowTutorial(false);
   };
+
   return (
     <div className="min-h-screen bg-paper py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+        <h1 className="font-display text-3xl font-bold text-ink mb-8 text-center">
           My Profile
         </h1>
-        {/* Tutorial Overlay */}
-        <AnimatePresence>
-          {showTutorial && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-            >
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-                className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full"
-              >
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                  Complete Your Profile
-                </h2>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  Welcome to BookPals! Let's make your profile stand out to
-                  connect with fellow book lovers:
-                </p>
-                <ul className="list-disc pl-5 mb-6 text-gray-700 dark:text-gray-300 space-y-2">
-                  <li>Upload a profile picture</li>
-                  <li>Write a short bio about your reading preferences</li>
-                  <li>Describe your favorite books or genres</li>
-                </ul>
-                <div className="flex justify-end">
-                  <button
-                    onClick={dismissTutorial}
-                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-                  >
-                    Got it
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl overflow-hidden">
+
+        <Modal isOpen={showTutorial} onClose={dismissTutorial} title="Complete Your Profile">
+          <p className="text-ink-muted mb-4">
+            Welcome to BookPals! Let's make your profile stand out to connect
+            with fellow book lovers:
+          </p>
+          <ul className="list-disc pl-5 mb-6 text-ink-muted space-y-2">
+            <li>Upload a profile picture</li>
+            <li>Write a short bio about your reading preferences</li>
+            <li>Describe your favorite books or genres</li>
+          </ul>
+          <div className="flex justify-end">
+            <Button onClick={dismissTutorial}>Got it</Button>
+          </div>
+        </Modal>
+
+        <Card className="p-0 backdrop-blur-sm bg-surface/90 overflow-hidden">
           {/* Profile Header */}
           <div className="relative h-48 bg-gradient-to-r from-accent to-accent-dark">
             <div className="absolute -bottom-16 left-8">
               <div className="relative group w-32 h-32">
-                {formData.avatar_url ? (
-                  <img
-                    src={formData.avatar_url}
-                    alt={`${formData.username || "User"}'s avatar`}
-                    className="w-full h-full rounded-full border-4 border-white dark:border-gray-800 object-cover bg-white"
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm text-gray-600 dark:text-gray-300 font-medium">
-                    Upload Photo
-                  </div>
-                )}
-
-                <label className="absolute bottom-0 right-0 bg-primary hover:bg-primary-dark p-2 rounded-full cursor-pointer transition-colors shadow-lg">
+                <Avatar
+                  src={formData.avatar_url}
+                  name={formData.username || "User"}
+                  className="w-full h-full border-4 border-surface"
+                />
+                <label className="absolute bottom-0 right-0 bg-accent hover:bg-accent-dark p-2 rounded-full cursor-pointer transition-colors shadow-lg">
                   <input
                     type="file"
                     accept="image/*"
@@ -168,91 +146,76 @@ const Profile = () => {
                   </svg>
                 </label>
               </div>
-            </div>{" "}
+            </div>
             <div className="absolute top-4 right-4">
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm transition-colors"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
               >
                 {isEditing ? "Cancel" : "Edit Profile"}
-              </button>
+              </Button>
             </div>
           </div>
           {/* Profile Content */}
           <div className="pt-20 px-8 pb-8">
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  label="Username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                  placeholder="Your username"
+                />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        username: e.target.value,
-                      }))
-                    }
-                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
-                    placeholder="Your username"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Bio
-                  </label>
+                  <label className="block text-sm font-medium text-ink mb-1.5">Bio</label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, bio: e.target.value }))
                     }
-                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full px-4 py-2 bg-surface text-ink border border-ink/15 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                     placeholder="Tell us about yourself and your reading preferences..."
                     rows="4"
                   />
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-sm text-ink-muted">
                     Share your favorite genres, authors, or what you're
                     currently reading.
                   </p>
                 </div>
                 <div className="flex justify-end mt-6">
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
-                  >
+                  <Button type="submit" disabled={formLoading}>
                     {formLoading ? "Saving..." : "Save Profile"}
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="font-display text-2xl font-bold text-ink">
                   {formData.username || "Your Name"}
                 </h2>
                 <div className="mt-6">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
-                    About Me
-                  </h3>
+                  <h3 className="text-lg font-medium text-ink mb-2">About Me</h3>
                   {formData.bio ? (
-                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                      {formData.bio}
-                    </p>
+                    <p className="text-ink-muted whitespace-pre-line">{formData.bio}</p>
                   ) : (
-                    <p className="text-gray-500 dark:text-gray-400 italic">
+                    <p className="text-ink-muted italic">
                       No bio yet. Click "Edit Profile" to add information about
                       yourself.
                     </p>
                   )}
                 </div>
                 {!profileComplete && (
-                  <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
+                  <div className="mt-8 p-4 bg-accent/10 rounded-lg border border-accent/20">
+                    <h3 className="font-medium text-accent-dark mb-2">
                       Complete Your Profile
                     </h3>
-                    <p className="text-blue-700 dark:text-blue-400 text-sm">
+                    <p className="text-accent-dark/80 text-sm">
                       {!formData.avatar_url && !formData.bio
                         ? "Add a profile picture and bio to help others connect with you."
                         : !formData.avatar_url
@@ -264,7 +227,7 @@ const Profile = () => {
               </div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
