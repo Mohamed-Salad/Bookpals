@@ -12,6 +12,18 @@ console.log(
   supabase ? Object.keys(supabase).join(", ") : "null"
 );
 
+// User-supplied ids get interpolated straight into PostgREST .or() filter
+// strings below. An id that isn't a UUID could break out of the intended
+// filter clause, so every id reaching a raw .or() template is validated here
+// first - one guard shared by every caller rather than one per call site.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const assertUuid = (id, label) => {
+  if (!UUID_RE.test(id)) {
+    throw new Error(`Invalid ${label}: expected a UUID`);
+  }
+};
+
 // Re-export createDirectChannel from streamClient
 
 // ==========================
@@ -245,6 +257,9 @@ export const updatePreferences = async (userId, updates) => {
 // Send a friend request
 export const sendFriendRequest = async (senderId, receiverId) => {
   try {
+    assertUuid(senderId, "senderId");
+    assertUuid(receiverId, "receiverId");
+
     // Check if connection already exists in either direction
     const { data: existingConnection } = await supabase
       .from("user_connections")
@@ -341,6 +356,9 @@ export const rejectFriendRequest = async (userId, requesterId) => {
 // Remove a friend
 export const removeFriend = async (userId, friendId) => {
   try {
+    assertUuid(userId, "userId");
+    assertUuid(friendId, "friendId");
+
     // Delete both connections
     const { error: error1 } = await supabase
       .from("user_connections")
@@ -1190,6 +1208,7 @@ export const getUserChatChannels = async (userId) => {
 export const getFriends = async (userId) => {
   try {
     if (!userId) return [];
+    assertUuid(userId, "userId");
 
     console.log(`[Database] Fetching friend connections for user: ${userId}`);
 

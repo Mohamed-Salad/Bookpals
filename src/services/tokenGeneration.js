@@ -19,19 +19,23 @@ app.use(
 app.use(express.json());
 
 // 4. Get environment variables
+// NOTE: the secrets below are intentionally NOT VITE_-prefixed. Vite inlines
+// every VITE_* var into the client bundle, so a secret with that prefix can
+// leak to the browser (e.g. via a stray `console.log(import.meta.env)`) even
+// though this file itself only ever runs server-side under Node.
 const streamKey = process.env.VITE_STREAM_API_KEY;
-const streamSecret = process.env.VITE_STREAM_API_SECRET;
+const streamSecret = process.env.STREAM_API_SECRET;
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_SERVICE_ROLE;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // 5. Check if we have all required keys
 if (!streamKey || !streamSecret || !supabaseUrl || !supabaseKey) {
   console.error("❌ Missing environment variables!");
   console.log("Please check your .env file has:");
   console.log("- VITE_STREAM_API_KEY");
-  console.log("- VITE_STREAM_API_SECRET");
+  console.log("- STREAM_API_SECRET");
   console.log("- VITE_SUPABASE_URL");
-  console.log("- VITE_SUPABASE_SERVICE_ROLE_KEY");
+  console.log("- SUPABASE_SERVICE_ROLE_KEY");
   process.exit(1);
 }
 
