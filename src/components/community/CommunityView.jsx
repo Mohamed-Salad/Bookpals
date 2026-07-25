@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { getCommunity, getCommunityDiscussions } from "../../services/database";
 import PostList from "./PostList";
 import CreatePost from "./CreatePost";
-import { motion } from "framer-motion";
-import { LoadingIndicator } from "stream-chat-react";
 import CommunitySidebar from "../../components/layout/CommunitySidebar";
 import ImageModal from "../../components/modals/ImageModal";
+import { Skeleton } from "../ui/Skeleton";
+import { Button } from "../ui/Button";
 
 const CommunityView = () => {
   const { communityId } = useParams();
@@ -111,8 +111,10 @@ const CommunityView = () => {
 
   if (loadingCommunity) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingIndicator size={40} />
+      <div className="flex flex-col items-center justify-center h-screen gap-4 px-4">
+        <Skeleton className="h-32 w-full max-w-5xl" />
+        <Skeleton className="h-24 w-full max-w-5xl" />
+        <Skeleton className="h-24 w-full max-w-5xl" />
       </div>
     );
   }
@@ -120,25 +122,20 @@ const CommunityView = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center px-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-          {error}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <h2 className="font-display text-2xl font-bold text-ink mb-4">{error}</h2>
+        <p className="text-ink-muted mb-6">
           The community you're looking for might have been removed or never
           existed.
         </p>
-        <button
-          onClick={() => navigate("/discover?tab=communities")}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-        >
+        <Button onClick={() => navigate("/discover?tab=communities")}>
           Browse Communities
-        </button>
+        </Button>
       </div>
     );
   }
 
   if (!community) {
-    return <div className="text-center py-10">Community not found.</div>;
+    return <div className="text-center py-10 text-ink-muted">Community not found.</div>;
   }
 
   // --- Restored Layout Structure ---
@@ -149,9 +146,9 @@ const CommunityView = () => {
       {/* Main scrollable content area */}
       {/* Let flex-1 handle width, center content inside with max-width */}
       <main
-        className="flex-1 overflow-y-auto pt-4 pb-48 md:pl-72 transition-all duration-300 ease-in-out ${
-          isCommunitySidebarExpanded ? 'md:pr-72' : 'md:pr-20'
-        }"
+        className={`flex-1 overflow-y-auto pt-4 pb-48 md:pl-72 transition-all duration-300 ease-in-out ${
+          isCommunitySidebarExpanded ? "md:pr-72" : "md:pr-20"
+        }`}
       >
         {" "}
         {/* Removed dynamic right padding */}
@@ -175,32 +172,33 @@ const CommunityView = () => {
                 }}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-700">
-                <span className="text-gray-400">No banner</span>
-          </div>
+              <div className="w-full h-full flex items-center justify-center bg-surface-raised">
+                <span className="text-ink-muted">No banner</span>
+              </div>
             )}
             <div className="absolute bottom-0 left-0 p-3 bg-black/50 w-full">
-              <h1 className="text-2xl font-bold text-white mb-0 truncate">
-            {community.name}
-          </h1>
+              <h1 className="font-display text-2xl font-bold text-white mb-0 truncate">
+                {community.name}
+              </h1>
               <p className="text-gray-200 text-xs truncate">
-            {community.description}
-          </p>
+                {community.description}
+              </p>
             </div>
-        </div>
+          </div>
           {/* Posts Section */}
           <div className="mt-4">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">
-            Discussions
-          </h2>
+            <h2 className="font-display text-xl font-semibold text-ink mb-4">
+              Discussions
+            </h2>
             {loadingDiscussions ? (
-              <div className="flex justify-center items-center py-8">
-                <LoadingIndicator size={30} />
-            </div>
+              <div className="space-y-4 py-4">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
             ) : postsError ? (
               <div className="text-center text-red-500 dark:text-red-400 py-4">
                 Error loading posts: {postsError}
-            </div>
+              </div>
             ) : (
               <PostList posts={discussions} onImageClick={openImageModal} />
             )}
@@ -212,9 +210,8 @@ const CommunityView = () => {
       {/* Right Community Sidebar (Smaller Width) */}
       {community && (
         <aside
-          // Use w-60 / w-16 for sidebar width
-          className={`fixed inset-y-0 right-0 z-20 pt-14 transition-all duration-300 ease-in-out border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${
-            isCommunitySidebarExpanded ? "w-60" : "w-16" // Skinny sidebar widths
+          className={`fixed inset-y-0 right-0 z-20 pt-14 transition-all duration-300 ease-in-out border-l border-ink/10 bg-surface ${
+            isCommunitySidebarExpanded ? "w-60" : "w-16"
           } hidden md:block`}
         >
           <CommunitySidebar
@@ -225,14 +222,14 @@ const CommunityView = () => {
           />
         </aside>
       )}
-      {/* Fixed Post Input Area (Updated Offsets and Centering) */}
+      {/* Fixed post-input bar. left-72 accounts for the fixed UnifiedSidebar
+          (w-72); right offset matches whichever width the community sidebar
+          above is currently using. */}
       {user && (
         <div
-          // Fixed position, adjust left/right based on sidebars
-          className={`fixed bottom-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700
-                     left-0 md:left-72  // Account for fixed UnifiedSidebar (assuming w-72)
+          className={`fixed bottom-0 z-30 bg-surface/90 backdrop-blur-sm border-t border-ink/10
+                     left-0 md:left-72
                      transition-all duration-300 ease-in-out ${
-                       // Use right-60 / right-16 to match new sidebar widths
                        isCommunitySidebarExpanded
                          ? "right-0 md:right-60"
                          : "right-0 md:right-16"
