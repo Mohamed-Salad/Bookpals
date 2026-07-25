@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getRecommendedCommunities } from "../../services/recommendationService";
-import CommunityCard from "./CommunityCard"; // Assuming path is correct
+import CommunityCard from "../socials/CommunityCard"; // Assuming path is correct
 import { LoadingIndicator } from "stream-chat-react"; // Or your own loader
 
 const RecommendedCommunities = ({ limit = 3 }) => {

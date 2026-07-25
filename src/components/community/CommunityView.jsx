@@ -6,7 +6,7 @@ import PostList from "./PostList";
 import CreatePost from "./CreatePost";
 import { motion } from "framer-motion";
 import { LoadingIndicator } from "stream-chat-react";
-import CommunitySidebar from "../../components/layout/CommunitySidebar";
+import CommunitySidebar from "../../components/Side-Top bars/CommunitySidebar";
 import ImageModal from "../../components/modals/ImageModal";
 
 const CommunityView = () => {

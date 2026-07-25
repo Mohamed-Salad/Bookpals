@@ -27,7 +27,7 @@ import { fadeIn, listItem } from "../../utils/animations";
 import { supabase } from "../../services/supabaseClient";
 import { toast } from "react-toastify";
 import CreateGroupChat from "../socials/CreateGroupChat";
-import CreateCommunityModal from "../../pages/community/components/CreateCommunityModal";
+import CreateCommunityModal from "../community/CreateCommunityModal";
 import {
   HomeIcon,
   UserIcon,

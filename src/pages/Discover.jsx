@@ -12,9 +12,9 @@ import {
 import { useAuth } from "../context/AuthContext";
 import UserCard from "../components/UserCard";
 import { motion, AnimatePresence } from "framer-motion";
-import CommunityCard from "../components/CommunityCard";
+import CommunityCard from "../components/socials/CommunityCard";
 import { useChat } from "../context/ChatContext";
-import CreateCommunityModal from "../pages/community/components/CreateCommunityModal";
+import CreateCommunityModal from "../components/community/CreateCommunityModal";
 
 // Tab selector component
 const TabSelector = ({ activeTab, setActiveTab }) => (

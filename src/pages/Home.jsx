@@ -4,10 +4,10 @@ import { useTheme } from "../context/ThemeContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useChat } from "../context/ChatContext";
-import Community from "../pages/community/Communities";
-import ChatPage from "../pages/Chat";
-import RecommendedUsers from "../components/RecommendedUsers";
-import RecommendedCommunities from "../components/RecommendedCommunities";
+import Community from "../components/community/Communities";
+import ChatPage from "../pages/ChatRooms";
+import RecommendedUsers from "../components/Reccomendations/RecommendedUsers";
+import RecommendedCommunities from "../components/Reccomendations/RecommendedCommunities";
 
 export default function Home() {
   const { user } = useAuth();

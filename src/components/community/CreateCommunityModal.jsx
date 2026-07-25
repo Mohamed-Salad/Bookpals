@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   createCommunity,
   updateCommunityBanner,
-} from "../../../services/database";
+} from "../../services/database";
 import { Dialog } from "@headlessui/react";
-import { GENRES } from "../../../utils/questions";
+import { GENRES } from "../../utils/questions";
 
 export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
   const { user } = useAuth();

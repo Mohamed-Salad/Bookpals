@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useAuth } from "../../../context/AuthContext";
-import { createDiscussion } from "../../../services/database";
+import { useAuth } from "../../context/AuthContext";
+import { createDiscussion } from "../../services/database";
 
 const PostCreator = ({ onPostCreated }) => {
   const [content, setContent] = useState("");
