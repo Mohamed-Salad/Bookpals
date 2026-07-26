@@ -1,6 +1,11 @@
-// src/pages/Search.jsx
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { searchAll } from "../services/searchService";
+import UserCard from "./UserCard";
+import { Input } from "./ui/Input";
+import { Button } from "./ui/Button";
+import { Card } from "./ui/Card";
+import { Skeleton } from "./ui/Skeleton";
+import { EmptyState } from "./ui/EmptyState";
 
 export default function Search() {
   const [query, setQuery] = useState("");
@@ -8,11 +13,6 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (query.trim()) {
-      handleSearch({ preventDefault: () => {} });
-    }
-  }, []);
   const handleSearch = async (e) => {
     e.preventDefault();
 
@@ -32,30 +32,32 @@ export default function Search() {
     }
   };
 
+  useEffect(() => {
+    if (query.trim()) {
+      handleSearch({ preventDefault: () => {} });
+    }
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Search</h1>
+      <h1 className="font-display text-3xl font-bold text-ink mb-6">Search</h1>
 
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="flex">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for readers or communities..."
-            className="flex-1 px-4 py-2 bg-dark-lighter/50 border border-primary/20 rounded-l-lg text-white"
-          />
-          <button
-            type="submit"
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-r-lg"
-          >
-            Search
-          </button>
-        </div>
+      <form onSubmit={handleSearch} className="mb-8 flex gap-2">
+        <Input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for readers or communities..."
+          className="flex-1"
+        />
+        <Button type="submit">Search</Button>
       </form>
 
       {loading ? (
-        <div className="text-center py-8">Searching...</div>
+        <div className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
@@ -63,7 +65,7 @@ export default function Search() {
           {/* Users section */}
           {results.users.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Readers</h2>
+              <h2 className="text-xl font-semibold text-ink mb-4">Readers</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {results.users.map((user) => (
                   <UserCard key={user.id} user={user} />
@@ -75,33 +77,26 @@ export default function Search() {
           {/* Communities section */}
           {results.communities.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Communities</h2>
+              <h2 className="text-xl font-semibold text-ink mb-4">Communities</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {results.communities.map((community) => (
-                  <div
-                    key={community.id}
-                    className="bg-dark-light/50 rounded-lg p-4"
-                  >
-                    <h3 className="text-lg font-medium">{community.name}</h3>
+                  <Card key={community.id}>
+                    <h3 className="text-lg font-medium text-ink">{community.name}</h3>
                     {community.description && (
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                      <p className="text-sm text-ink-muted mt-1 line-clamp-2">
                         {community.description}
                       </p>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
           )}
 
           {/* No results message */}
-          {results.users.length === 0 &&
-            results.communities.length === 0 &&
-            query && (
-              <div className="text-center py-8 text-gray-400">
-                No results found for "{query}"
-              </div>
-            )}
+          {results.users.length === 0 && results.communities.length === 0 && query && (
+            <EmptyState title="No results found" description={`No matches for "${query}"`} />
+          )}
         </div>
       )}
     </div>
