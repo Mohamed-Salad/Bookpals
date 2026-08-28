@@ -42,3 +42,6 @@ BookPals Docs/
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# Playwright MCP browser-testing artifacts (screenshots/snapshots), not source
+.playwright-mcp/
