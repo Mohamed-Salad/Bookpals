@@ -15,5 +15,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      # --legacy-peer-deps: see Dockerfile comment - stream-chat-react's
+      # @emoji-mart/react peer dep hasn't caught up to React 19 yet.
+      - run: npm ci --legacy-peer-deps
       - run: npm run build

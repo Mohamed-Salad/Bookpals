@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+.git
+.github
+.claude
+.playwright-mcp
+Reference
+graphify-out
+BookPals Docs
+*.log
+.env
+.env.local
+.env.*.local
