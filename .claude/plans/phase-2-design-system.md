@@ -17,15 +17,16 @@ one commit per page: Landing (`d3e411e`) → Login/Signup (`6091d66`) → Home (
 only) → Communities (`0983e90`) → CommunityView (`973bc67`) → Profile (`c51cf87`) → Discover
 (`6e08fab`) → Search (`9edb9c5`).
 
-### Task 2.3: App shell & Home rethink — IN PROGRESS (uncommitted)
-- **Action**: unify `layout/Navbar` + a new `layout/Sidebar` into a consistent shell (sidebar: Home,
-  Discover, Communities, Matches, Creators*, Chat*, Profile; * = placeholder until later phases).
-  Rebuild `pages/Home.jsx` as a feed: (a) activity from joined communities (recent discussions via
-  existing `getCommunityDiscussions` per membership), (b) "Top matches" rail (placeholder data until
-  Phase 3 — `recommendations/MatchCard.jsx` scaffolded now), (c) "Discover communities" rail. Remove
-  the current widget clutter.
-- **Current working-tree state**: `src/App.jsx`, `src/components/layout/Navbar.jsx`,
-  `src/pages/Home.jsx` modified; `src/components/layout/Sidebar.jsx`,
-  `src/components/recommendations/MatchCard.jsx` new/untracked — not yet committed.
-- **Validate**: `npm run build` green; Home renders with real community data for a member account;
-  `MatchCard` renders (placeholder data is fine, real scoring is Phase 3); commit when green.
+### Task 2.3: App shell & Home rethink — DONE (`45df5cb`)
+Unified `layout/Navbar` + new `layout/Sidebar` into a consistent shell (sidebar: Home, Discover,
+Communities, Matches, Creators*, Chat*, Profile; * = placeholder until later phases). Rebuilt
+`pages/Home.jsx` as a feed: (a) activity from joined communities via `getCommunityDiscussions` per
+membership, (b) "Top matches" rail (`recommendations/MatchCard.jsx`, placeholder data until Phase 3),
+(c) "Discover communities" rail.
+
+Found and fixed along the way: `DiscussionItem.jsx`/`PostCreator.jsx` were dead legacy components
+calling a nonexistent `createDiscussion` export (renamed to `createPost`, callers never updated) —
+broke the build. Deleted both; feed uses the already-correct `PostItem` instead.
+
+Build verified green + landing page Playwright-smoke-tested (0 console errors). **Not yet verified**:
+Home feed while logged in — do that next time you're in the app, then check it off here.

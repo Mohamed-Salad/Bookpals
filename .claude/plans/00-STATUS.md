@@ -19,12 +19,16 @@ Phase files: [phase-1-foundation.md](phase-1-foundation.md) · [phase-2-design-s
   exist (Avatar, Badge, Button, Card, EmptyState, Input, Modal, Skeleton, Tabs). All 8 pages swept:
   Landing, Login/Signup, Home (token pass only), Communities, CommunityView, Profile, Discover, Search
   (`d3e411e`..`9edb9c5`).
-- **Phase 2.3 (app shell & Home rethink) — IN PROGRESS, uncommitted.** Working tree right now has:
-  - Modified: `src/App.jsx`, `src/components/layout/Navbar.jsx`, `src/pages/Home.jsx`
-  - New/untracked: `src/components/layout/Sidebar.jsx`, `src/components/recommendations/MatchCard.jsx`
-  - This matches Task 2.3's shell-unification + Home-feed-rebuild + "Top matches" rail scaffold.
-  - **Resume here**: verify `npm run build` is green, click through the shell + Home feed, confirm
-    `MatchCard` renders (even with placeholder data), then commit as Phase 2.3.
+- **Phase 2.3 (app shell & Home rethink) — DONE & committed** (`45df5cb`). Home is now a feed
+  (community activity + Top Matches rail with placeholder `MatchCard` data + Discover Communities
+  rail); new `layout/Sidebar.jsx` wired into `App.jsx`/`Navbar.jsx`.
+  - Found and fixed along the way: `DiscussionItem.jsx` and `PostCreator.jsx` were dead legacy
+    components calling a `createDiscussion` export that no longer exists (renamed to `createPost`
+    at some point, callers never updated) — broke the production build. Both deleted; the Home feed
+    uses the already-correct `PostItem` component instead. Build verified green (`vite build`),
+    landing page smoke-tested with Playwright (0 console errors). Home feed itself not yet visually
+    verified logged-in — do that next time you're in the app.
+- **Phase 2.2 all done, Phase 2.3 done. Next up: Phase 3 (Matching Engine).**
 - **Phases 3–6 — not started.**
 
 ## Repo traps — read before touching anything
@@ -73,7 +77,7 @@ git status              # .env.local NEVER staged
 
 ## Acceptance
 - [x] P1: build green on React 19/Vite 8/Tailwind 4; security fixes in; one questionnaire (done 2026-07-25)
-- [ ] P2: design tokens ✅ + ui/ primitives on every route ✅ + Home is a feed (in progress)
+- [x] P2: design tokens ✅ + ui/ primitives on every route ✅ + Home is a feed ✅ (done 2026-08-25)
 - [ ] P3: match_users RPC live; /matches page with score breakdowns
 - [ ] P4: inclusive taxonomy; 4-step onboarding; keyboard-only pass
 - [ ] P5: /creators directory; works CRUD; creator match bonus
