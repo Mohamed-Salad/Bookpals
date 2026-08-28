@@ -45,3 +45,6 @@ BookPals Docs/
 
 # Playwright MCP browser-testing artifacts (screenshots/snapshots), not source
 .playwright-mcp/
+
+# Supabase CLI's local cache (version checks etc.), not project source
+supabase/.temp/

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getUserCommunities, getCommunityDiscussions } from "../services/database";
+import { useMatches } from "../services/recommendationService";
 import PostItem from "../components/community/PostItem";
 import RecommendedCommunities from "../components/recommendations/RecommendedCommunities";
 import { MatchCard } from "../components/recommendations/MatchCard";
@@ -9,18 +10,12 @@ import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 
-// Visual placeholder until Phase 3 wires the real match_users RPC.
-const PLACEHOLDER_MATCHES = [
-  { username: "Alex Reader", score: 0.92, sharedGenres: ["Fantasy", "Sci-Fi"] },
-  { username: "Jamie Books", score: 0.85, sharedGenres: ["Mystery"] },
-  { username: "Sam Pages", score: 0.78, sharedGenres: ["Romance", "YA"] },
-];
-
 export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activity, setActivity] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(true);
+  const { data: matches, isLoading: loadingMatches } = useMatches(user?.id, 3);
 
   useEffect(() => {
     const loadActivity = async () => {
@@ -78,14 +73,32 @@ export default function Home() {
           )}
         </section>
 
-        {/* Top matches rail - placeholder card + data until Phase 3 */}
+        {/* Top matches rail */}
         <section>
           <h2 className="font-display text-2xl font-bold text-ink mb-4">Top Matches</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {PLACEHOLDER_MATCHES.map((m) => (
-              <MatchCard key={m.username} {...m} />
-            ))}
-          </div>
+          {loadingMatches ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          ) : !matches?.length ? (
+            <EmptyState
+              title="No matches yet"
+              description="Finish your reading preferences to get matched with other readers."
+              action={
+                <Button onClick={() => navigate("/interests")}>
+                  Update Preferences
+                </Button>
+              }
+            />
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {matches.map((m) => (
+                <MatchCard key={m.user_id} match={m} />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Discover communities rail */}

@@ -28,8 +28,18 @@ Phase files: [phase-1-foundation.md](phase-1-foundation.md) · [phase-2-design-s
     uses the already-correct `PostItem` component instead. Build verified green (`vite build`),
     landing page smoke-tested with Playwright (0 console errors). Home feed itself not yet visually
     verified logged-in — do that next time you're in the app.
-- **Phase 2.2 all done, Phase 2.3 done. Next up: Phase 3 (Matching Engine).**
-- **Phases 3–6 — not started.**
+- **Phase 3 (Matching Engine) — client code done, migration NOT applied.** `useMatches` hook,
+  `MatchCard` (score + breakdown popover + Connect CTA), and the full `/matches` page are all built
+  and wired into routing/Sidebar. Build is green. **Blocking**: `supabase/migrations/0002_matching.sql`
+  has not been run against the live project yet — until it is, `/matches` and Home's "Top Matches"
+  rail will error at runtime (RPC doesn't exist). See phase-3 file for two corrections made to that
+  SQL before it was ever run (NULL-propagation bug, missing `shared_genres` column).
+- **Phases 4–6 — not started.**
+- **Also added this session, outside the phase plan**: minimal GitHub Actions CI (`.github/workflows/ci.yml`,
+  runs `npm ci --legacy-peer-deps && npm run build` on push/PR to `main`) and a multi-stage `Dockerfile`
+  + `nginx.conf` (builds the Vite app, serves via nginx, ~97MB image, verified working locally).
+  Neither is CD (nothing deploys anywhere yet) - see repo trap #9 below for the peer-dep gotcha both
+  depend on.
 
 ## Repo traps — read before touching anything
 
@@ -58,6 +68,12 @@ A fresh session WILL get these wrong without this list:
    design already torn out) and was deleted (zip backup at `Reference/docs-archive-2026-08-25.zip`).
    The Volere requirement `.txt` files directly under `Reference/` are the only genuine signal and
    are already captured in the "Original goals" section of the project's root `CLAUDE.md`.
+9. **`npm ci` (strict) fails on a peer-dependency conflict that `npm install` silently tolerates.**
+   `@emoji-mart/react@1.1.1` (pulled in via `stream-chat-react`, dead code until Phase 6) only
+   declares peer support for React ≤18; React 19 is installed and works fine at runtime, but `npm ci`
+   validates peer ranges strictly regardless of what the lockfile already resolved. Always
+   `npm ci --legacy-peer-deps` (CI and Dockerfile already do this) — plain `npm ci` will fail. Real
+   fix is Phase 6 removing `stream-chat-react` entirely.
 
 ## Validation (every phase)
 ```bash
@@ -78,7 +94,7 @@ git status              # .env.local NEVER staged
 ## Acceptance
 - [x] P1: build green on React 19/Vite 8/Tailwind 4; security fixes in; one questionnaire (done 2026-07-25)
 - [x] P2: design tokens ✅ + ui/ primitives on every route ✅ + Home is a feed ✅ (done 2026-08-25)
-- [ ] P3: match_users RPC live; /matches page with score breakdowns
+- [ ] P3: match_users RPC live (client + /matches page done 2026-08-28, migration not yet applied)
 - [ ] P4: inclusive taxonomy; 4-step onboarding; keyboard-only pass
 - [ ] P5: /creators directory; works CRUD; creator match bonus
 - [ ] P6: realtime chat on Supabase; Stream fully removed
