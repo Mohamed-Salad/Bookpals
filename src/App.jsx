@@ -9,7 +9,7 @@ import { createContext, useState, useContext, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/layout/Navbar";
-import UnifiedSidebar from "./components/layout/UnifiedSidebar";
+import Sidebar from "./components/layout/Sidebar";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -57,7 +57,7 @@ const AppContent = () => {
   const showSidebar = user && (isHomePage || isCommunityPage) && !isChatPage;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div className="min-h-screen bg-paper text-ink">
       {!isChatPage && <Navbar />}
 
       <div className="relative flex pt-14">
@@ -68,10 +68,7 @@ const AppContent = () => {
               isSidebarExpanded ? "w-72" : "w-20"
             } hidden md:block`}
           >
-            <UnifiedSidebar
-              isExpanded={isSidebarExpanded}
-              toggleSidebar={toggleSidebar}
-            />
+            <Sidebar isExpanded={isSidebarExpanded} toggleSidebar={toggleSidebar} />
           </div>
         )}
 

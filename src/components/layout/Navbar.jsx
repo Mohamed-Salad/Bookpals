@@ -118,20 +118,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav
-      className={`z-40 ${
-        isDarkMode ? "bg-gray-800" : "bg-white"
-      } border-b border-gray-200 dark:border-gray-700 fixed w-full top-0 left-0`}
-    >
+    <nav className="z-40 bg-surface border-b border-ink/10 fixed w-full top-0 left-0">
       <div className="mx-auto px-4 lg:px-6">
         <div className="flex justify-between h-14">
           {/* Logo and Navigation Links */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link
-                to={user ? "/home" : "/"}
-                className="text-lg font-bold text-primary"
-              >
+              <Link to={user ? "/home" : "/"} className="font-display text-lg font-bold text-accent">
                 BookPals
               </Link>
             </div>
@@ -143,10 +136,8 @@ const Navbar = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center px-1 border-b-2 text-sm font-medium ${
-                      location.pathname === link.to
-                        ? "border-primary text-primary dark:text-primary-light"
-                        : ""
+                    className={`border-transparent text-ink-muted hover:border-ink/20 hover:text-ink inline-flex items-center px-1 border-b-2 text-sm font-medium ${
+                      location.pathname === link.to ? "border-accent text-accent-dark" : ""
                     }`}
                   >
                     {link.label}
