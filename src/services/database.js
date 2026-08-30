@@ -195,6 +195,7 @@ export const createPreferences = async (userId, preferences) => {
         reading_frequency: preferences.reading_frequency,
         preferred_reading_time: preferences.reading_time || null,
         preferred_reading_format: preferences.reading_format || null,
+        secondary_types: preferences.secondary_types || [],
         favorite_genres: preferences.genres || [],
         favorite_authors: preferences.favorite_authors
           ? preferences.favorite_authors.split(",").map((a) => a.trim())

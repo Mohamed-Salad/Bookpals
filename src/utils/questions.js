@@ -224,6 +224,13 @@ export const READING_QUESTIONS = [
     required: true,
   },
   {
+    id: "secondaryTypes",
+    type: "multi-select",
+    label: "Any other ways you read? (optional)",
+    options: READING_TYPES,
+    required: false,
+  },
+  {
     id: "genres",
     type: "multi-select",
     label: "Select your favorite genres",
@@ -270,6 +277,7 @@ export const formatUserPreferences = (formData) => {
     reading_frequency: formData.readingFrequency,
     reading_time: formData.readingTime || null,
     reading_format: formData.readingFormat || null,
+    secondary_types: formData.secondaryTypes || [],
     genres: formData.genres || [],
     favorite_authors: formData.favoriteAuthors || null,
     reading_goals: formData.readingGoals || null,
