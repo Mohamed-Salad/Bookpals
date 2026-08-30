@@ -30,3 +30,20 @@ requested columns against schema before RLS applies, so a 200 (vs a 400 "column 
 confirms all four new columns exist; empty result is RLS correctly blocking anon reads, not an
 error. No mutation performed by this session. Phase 4.1b migration is now live; /interests and
 /onboarding are unblocked.
+
+**2026-08-30** — Supabase MCP became available mid-session (confirmed via `list_projects`; project
+`BookPals` = `nfhkdwwydzigdojikzeu`). First live-write action performed directly by this session
+rather than handed to the user: user ran the fixed `0006_seed_webnovel_communities.sql` successfully,
+but then reported seeing nothing in the app. Diagnosed via MCP `execute_sql` (read-only): a REST probe
+for `communities` returned `500 42P17 infinite recursion detected in policy for relation
+"community_members"`. Read `pg_policies` for both tables (read-only) — found a `community_members`
+policy ("Only moderators can manage members", cmd=ALL) whose USING clause subqueried
+`community_members` from within itself, triggered transitively by a `communities` SELECT via the
+"Communities are viewable by everyone" policy. Confirmed via `grep` that nothing in the app references
+"moderator". Applied the fix via MCP `apply_migration` (name: `fix_community_members_rls_recursion`):
+`drop policy if exists "Only moderators can manage members" on public.community_members;`. Verified
+after: `execute_sql` confirmed all 7 seeded communities exist and are correctly formed. Ran
+`get_advisors` (security) as a post-DDL sanity check per the MCP server's own guidance — only
+pre-existing, unrelated platform warnings (function search_path hardening, leaked-password-protection
+toggle, a Postgres patch upgrade), nothing new from this change. Local mirror of the applied fix:
+`0007_fix_community_members_rls_recursion.sql` (does not need to be re-run).

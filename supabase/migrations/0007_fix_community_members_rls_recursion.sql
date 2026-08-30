@@ -1,0 +1,24 @@
+-- Fixes 42P17 "infinite recursion detected in policy for relation
+-- community_members". Applied directly to the live project via Supabase
+-- MCP on 2026-08-30 (see DB-AUDIT-LOG.md) - this file mirrors that
+-- change for local history; it does not need to be run again.
+--
+-- Root cause: the live community_members table had a policy ("Only
+-- moderators can manage members", cmd=ALL) whose USING clause subqueried
+-- community_members from within itself. Any read/write touching
+-- membership re-triggered RLS evaluation on the same table, recursing.
+-- Triggered transitively too: a plain communities SELECT hits the
+-- "Communities are viewable by everyone" policy, which subqueries
+-- community_members, which re-triggers this policy's recursion - so the
+-- bug broke community browsing/discovery app-wide, not just new rows.
+--
+-- The policy's condition was also a tautology independent of the
+-- recursion: `community_members_1.community_id = community_members_1.community_id`
+-- compares the subquery alias to itself, never referencing the row being
+-- checked - it never did anything correct even before it started crashing.
+-- Nothing in the app references "moderator" (grepped src/, no matches),
+-- so dropping it loses no working functionality. member read/insert/delete
+-- (and their duplicate equivalents already present from an earlier,
+-- never-cleaned-up migration attempt) continue covering what the app uses.
+
+drop policy if exists "Only moderators can manage members" on public.community_members;

@@ -3,12 +3,14 @@
 **Status: not started.** See [00-STATUS.md](00-STATUS.md) for repo traps and the validation gate.
 Chat is intentionally dead until this phase — do not "fix" Stream connection errors earlier.
 
-**Migration numbering note**: `0006` went to an out-of-band data seed (`0006_seed_webnovel_communities.sql`,
-2026-08-30 - popular web-novel communities, unrelated to this phase). Chat's schema migration is
-`0007_chat.sql`, not `0006_chat.sql` as originally numbered below.
+**Migration numbering note**: `0006` and `0007` went to out-of-band fixes/seeds unrelated to this
+phase (`0006_seed_webnovel_communities.sql` - popular web-novel communities + a missing
+`communities.name` unique constraint; `0007_fix_community_members_rls_recursion.sql` - a live RLS bug
+that broke community browsing app-wide, applied directly via Supabase MCP, both 2026-08-30). Chat's
+schema migration is `0008_chat.sql`, not `0006_chat.sql` as originally numbered below.
 
 ### Task 6.1: Schema
-- **Action**: `supabase/migrations/0007_chat.sql`:
+- **Action**: `supabase/migrations/0008_chat.sql`:
   `conversations(id uuid pk default gen_random_uuid(), is_group boolean default false, name text, created_by uuid references profiles, created_at timestamptz default now())`;
   `conversation_members(conversation_id uuid references conversations on delete cascade, user_id uuid references profiles on delete cascade, joined_at timestamptz default now(), primary key(conversation_id, user_id))`;
   `messages(id uuid pk default gen_random_uuid(), conversation_id uuid references conversations on delete cascade, sender_id uuid references profiles, content text not null, created_at timestamptz default now())`.
