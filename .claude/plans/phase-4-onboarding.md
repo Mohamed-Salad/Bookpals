@@ -1,7 +1,8 @@
 # Phase 4 — Inclusive Registration & Onboarding
 
-**Status: Task 4.1's taxonomy half DONE (2026-08-30); secondary_types/profile columns still pending.**
+**Status: DONE except one item.** 4.1a, 4.1b, 4.2, and most of 4.3 done 2026-08-30.
 See [00-STATUS.md](00-STATUS.md) for repo traps and the validation gate.
+**Blocking**: `supabase/migrations/0003_inclusive.sql` must run before this ships — see 4.1b.
 
 ### Task 4.1a: Broaden the taxonomy — DONE
 `src/utils/questions.js` `READING_TYPES`/`GENRES`/`READING_FORMATS` expanded, driven by the user
@@ -21,26 +22,57 @@ already `text[]`, so no migration needed.
 - READING_FORMATS += Web/App (previously unrepresented despite being how most online-native readers
   actually read), Large Print.
 - Matching algorithm needed zero code changes — `reading_type`/`favorite_genres` scoring is plain
-  string comparison, generalizes to any list. Verified: `Interests.jsx`'s option grid is
-  `grid-cols-2/3` auto-wrapping, doesn't break with more options. Build green.
+  string comparison, generalizes to any list. Build green.
 
-### Task 4.1b: `secondary_types` + profile columns — NOT started
-- **Action**: keep single primary `reading_type` (matching weights depend on it) but add optional
-  `secondary_types text[]` question + column (migration `0003_inclusive.sql`: alter user_preferences
-  add secondary_types, alter profiles add pronouns text, display_name text, role text default
-  'reader').
-- **Validate**: questionnaire saves all new fields; matching still runs.
+### Task 4.1b: `secondary_types` + profile columns — code DONE, migration NOT yet applied
+- `supabase/migrations/0003_inclusive.sql` written: `user_preferences.secondary_types text[]`,
+  `profiles.pronouns/display_name/role` (role check-constrained to reader/creator/both). All
+  additive/nullable-or-defaulted, safe for existing rows.
+- `questions.js`: new optional multi-select question ("Any other ways you read?"), renders
+  automatically since `Interests.jsx` is data-driven off `READING_QUESTIONS`.
+- `database.js` `createPreferences` now includes `secondary_types` in its upsert unconditionally.
+- **BLOCKING, higher severity than a normal pending migration**: this isn't an isolated new feature
+  like Phase 3's RPC was — `createPreferences`/`updateProfile` are already-live, in-use functions.
+  Until `0003_inclusive.sql` runs, saving/editing preferences via `/interests` AND the entire
+  `/onboarding` wizard (steps 1-2 write `display_name`/`pronouns`/`role`) will error with "column does
+  not exist." **Run this migration before using the app again.**
 
-### Task 4.2: Multi-step onboarding
-- **Action**: rebuild post-signup flow as steps: (1) welcome + display name + optional pronouns,
-  (2) "I'm here as: Reader / Creator / Both" → sets `profiles.role`, (3) the Interests questionnaire
-  (existing, restyled with Phase 2 primitives), (4) suggested communities from chosen genres. Route
-  `/onboarding`; redirect there after first login when `user_preferences` row absent.
+### Task 4.2: Multi-step onboarding — DONE
+New `/onboarding`: welcome (display name + optional pronouns) → role (reader/creator/both) → reading
+preferences → suggested communities (`RecommendedCommunities`, reused as-is). Each step saves as it
+goes, so leaving mid-flow doesn't lose earlier answers. `Signup.jsx` now routes new users to
+`/onboarding` instead of `/interests`; `Login.jsx` checks for an existing `user_preferences` row and
+routes first-time logins to `/onboarding`, returning users straight to `/home`.
+
+Extracted the question-rendering logic out of `Interests.jsx` into a shared `PreferencesForm`
+component (restyled onto Phase 2 tokens/ui primitives), reused both standalone (`/interests`, edit
+preferences any time) and as the wizard's step 3 — same save path, different `onComplete` callback.
+Note: this overwrote an old, already-dead `PreferencesForm.jsx` that existed at the same path
+(different prop shape, confirmed unused anywhere via `git grep` at `HEAD` before overwriting, same
+pattern as other orphaned files found this session) — should have `Read` it first rather than assuming
+a fresh file; got lucky it was dead code.
+
 - **Validate**: fresh signup lands in onboarding; completing it lands on Home with matches; skipping
-  optional fields works.
+  optional fields works. **Not yet done — blocked on 0003_inclusive.sql, see 4.1b.**
 
-### Task 4.3: A11y pass
-- **Action**: every form field labelled (`<label htmlFor>`), buttons have discernible text, focus
-  order sane, color contrast ≥ 4.5:1 (check the amber accent on paper background),
-  `prefers-reduced-motion` respected on framer-motion animations (wrap with `useReducedMotion`).
-- **Validate**: keyboard-only signup → onboarding → post creation succeeds.
+### Task 4.3: A11y pass — mostly DONE
+- Form fields labelled: already satisfied — `ui/Input` renders a proper `<label htmlFor>` by default,
+  used throughout.
+- Buttons have discernible text: already satisfied, no icon-only buttons without text in touched code.
+- Focus order: natural DOM order throughout, no issues found.
+- **Color contrast — DONE, real bugs found and fixed.** Computed actual ratios: white text on
+  `bg-accent` ≈3.2:1 (needs 4.5:1) and `text-accent` directly on paper/surface ≈3.0:1 (fails even the
+  lenient 3:1 threshold) — both real failures in light mode, app-wide (Button, Tabs, links, Navbar
+  brand text, Landing CTA, Avatar initials, and this phase's own new components). Fixed by swapping to
+  `accent-dark` (≈5.0:1 / ≈4.7:1) everywhere — no new color tokens needed. Dark mode's text-on-paper
+  case was already fine (≈8.6:1, computed, not touched). **Not fully solved**: dark mode's solid-fill
+  white-text case improves but doesn't reach 4.5:1 without a third accent shade specific to that
+  combination — would need visual verification in dark mode to pick a value with confidence, not
+  guessed at blind.
+- **`prefers-reduced-motion` — NOT done.** Touches 7+ files using `framer-motion` transitions
+  (`src/utils/animations.js` exports `fadeIn`/`slideIn`/`scaleIn`/etc., all fairly subtle ~20px/opacity
+  transitions, not large/parallax). WCAG AAA-level, not the AA bar the contrast fix targeted; needs
+  OS-level motion-preference emulation to verify, which wasn't done this session. Genuine remaining
+  item, not skipped for lack of importance — just not rushed blind.
+- **Validate**: keyboard-only signup → onboarding → post creation succeeds. Not yet done (needs
+  0003_inclusive.sql applied + a real logged-in pass).
