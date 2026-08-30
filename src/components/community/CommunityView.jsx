@@ -8,6 +8,7 @@ import CommunitySidebar from "../../components/layout/CommunitySidebar";
 import ImageModal from "../../components/modals/ImageModal";
 import { Skeleton } from "../ui/Skeleton";
 import { Button } from "../ui/Button";
+import { useSEO } from "../../hooks/useSEO";
 
 const CommunityView = () => {
   const { communityId } = useParams();
@@ -15,6 +16,10 @@ const CommunityView = () => {
   const navigate = useNavigate();
 
   const [community, setCommunity] = useState(null);
+  useSEO({
+    title: community?.name || "Community",
+    description: community?.description || "A BookPals reading community.",
+  });
   const [loadingCommunity, setLoadingCommunity] = useState(true);
   const [error, setError] = useState(null);
   const [isMember, setIsMember] = useState(false);

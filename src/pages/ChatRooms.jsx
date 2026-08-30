@@ -7,6 +7,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { cn } from "../components/ui/cn";
+import { useSEO } from "../hooks/useSEO";
 
 function conversationLabel(conversation, currentUserId) {
   if (conversation.is_group) return conversation.name || "Group chat";
@@ -25,6 +26,7 @@ function conversationAvatar(conversation, currentUserId) {
 }
 
 export default function ChatRooms() {
+  useSEO({ title: "Chats", description: "Your BookPals conversations." });
   const { channelId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();

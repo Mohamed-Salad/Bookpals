@@ -6,8 +6,10 @@ import ErrorBoundary from "../../components/ErrorBoundary";
 import { Link } from "react-router-dom";
 import { EmptyState } from "../ui/EmptyState";
 import { Skeleton } from "../ui/Skeleton";
+import { useSEO } from "../../hooks/useSEO";
 
 const Communities = () => {
+  useSEO({ title: "Community Posts", description: "Recent posts from the communities you've joined." });
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

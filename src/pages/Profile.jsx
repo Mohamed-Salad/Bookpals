@@ -12,8 +12,10 @@ import { Avatar } from "../components/ui/Avatar";
 import { Modal } from "../components/ui/Modal";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/Tabs";
 import { CreatorTab } from "../components/creators/CreatorTab";
+import { useSEO } from "../hooks/useSEO";
 
 const Profile = () => {
+  useSEO({ title: "Your Profile", description: "View and edit your BookPals profile." });
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [role, setRole] = useState("reader");

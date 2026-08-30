@@ -5,11 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { slideIn } from "../utils/animations";
 import { signIn, signInWithProvider } from "../services/auth";
 import { getPreferences } from "../services/database";
+import { useSEO } from "../hooks/useSEO";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 
 export default function Login() {
+  useSEO({
+    title: "Log In",
+    description: "Log in to your BookPals account to connect with your reading community.",
+  });
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -67,6 +72,7 @@ export default function Login() {
       <motion.div variants={slideIn} initial="initial" animate="animate" className="max-w-md w-full">
         <Card className="space-y-8 p-8 backdrop-blur-sm bg-surface/90">
           <div>
+            <h1 className="sr-only">Log In to BookPals</h1>
             <h2 className="font-display text-center text-3xl font-extrabold text-ink">
               Welcome Back
             </h2>

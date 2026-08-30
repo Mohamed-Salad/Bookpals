@@ -3,8 +3,13 @@ import { useMatches } from "../services/recommendationService";
 import { MatchCard } from "../components/recommendations/MatchCard";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
+import { useSEO } from "../hooks/useSEO";
 
 export default function Matches() {
+  useSEO({
+    title: "Your Matches",
+    description: "Readers matched to your taste in genres, authors, and reading habits.",
+  });
   const { user } = useAuth();
   const { data: matches, isLoading, error } = useMatches(user?.id, 20);
 

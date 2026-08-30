@@ -5,28 +5,42 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, lazy, Suspense, useState, useContext, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
-import LandingPage from "./pages/LandingPage";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Home from "./pages/Home";
-import Matches from "./pages/Matches";
-import Profile from "./pages/Profile";
-import Interests from "./components/onboarding/Interests";
-import Onboarding from "./pages/Onboarding";
-import Creators from "./pages/Creators";
-import Communities from "./components/community/Communities";
-import CommunityView from "./components/community/CommunityView";
-import CreateGroupChat from "./components/socials/CreateGroupChat";
 import AuthCallback from "./context/AuthCallBack";
-import Search from "./components/Search";
-import Discover from "./pages/Discover";
 import { NotificationProvider } from "./context/NotificationContext";
-import ChatPage from "./pages/ChatRooms";
+import { Skeleton } from "./components/ui/Skeleton";
+
+// Route-level code splitting - each page ships as its own chunk instead of
+// one large bundle, so a first visit only downloads the page it lands on.
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Home = lazy(() => import("./pages/Home"));
+const Matches = lazy(() => import("./pages/Matches"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Interests = lazy(() => import("./components/onboarding/Interests"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Creators = lazy(() => import("./pages/Creators"));
+const Communities = lazy(() => import("./components/community/Communities"));
+const CommunityView = lazy(() => import("./components/community/CommunityView"));
+const CreateGroupChat = lazy(() => import("./components/socials/CreateGroupChat"));
+const Search = lazy(() => import("./components/Search"));
+const Discover = lazy(() => import("./pages/Discover"));
+const ChatPage = lazy(() => import("./pages/ChatRooms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-paper p-8">
+      <Skeleton className="h-8 w-48 mb-4" />
+      <Skeleton className="h-32 w-full" />
+    </div>
+  );
+}
 
 // Create NotificationContext
 export const NotificationContext = createContext();
@@ -85,6 +99,7 @@ const AppContent = () => {
           }`}
         >
           <main className="p-4 md:p-6">
+            <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
@@ -186,7 +201,9 @@ const AppContent = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </main>
         </div>
       </div>

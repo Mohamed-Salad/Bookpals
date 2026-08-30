@@ -5,11 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { slideIn } from "../utils/animations";
 import { validateUsername } from "../utils/questions";
 import { signUp, signInWithProvider } from "../services/auth";
+import { useSEO } from "../hooks/useSEO";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 
 export default function Signup() {
+  useSEO({
+    title: "Sign Up",
+    description: "Create your free BookPals account and get matched with readers who share your taste.",
+  });
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -83,6 +88,7 @@ export default function Signup() {
       <motion.div variants={slideIn} initial="initial" animate="animate" className="max-w-md w-full">
         <Card className="space-y-8 p-8 backdrop-blur-sm bg-surface/90">
           <div>
+            <h1 className="sr-only">Sign Up for BookPals</h1>
             <h2 className="font-display text-center text-3xl font-extrabold text-ink">
               Create your account
             </h2>

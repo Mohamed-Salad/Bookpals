@@ -6,8 +6,10 @@ import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { Skeleton } from "./ui/Skeleton";
 import { EmptyState } from "./ui/EmptyState";
+import { useSEO } from "../hooks/useSEO";
 
 export default function Search() {
+  useSEO({ title: "Search", description: "Search for readers and communities on BookPals." });
   const [query, setQuery] = useState("");
   const [results, setResults] = useState({ users: [], communities: [] });
   const [loading, setLoading] = useState(false);

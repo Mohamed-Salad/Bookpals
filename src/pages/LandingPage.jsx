@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { buttonVariants } from "../components/ui/Button";
+import { useSEO } from "../hooks/useSEO";
 
 const STEPS = [
   {
@@ -39,6 +40,12 @@ const FEATURES = [
 ];
 
 const LandingPage = () => {
+  useSEO({
+    title: "Find Your Perfect Reading Community",
+    description:
+      "Connect with fellow book lovers, get matched with readers who share your taste, and join reading communities on BookPals.",
+  });
+
   return (
     <div className="animate-fade-in">
       <section className="relative bg-paper py-20 sm:py-32">

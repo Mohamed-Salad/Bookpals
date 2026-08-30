@@ -9,8 +9,13 @@ import { MatchCard } from "../components/recommendations/MatchCard";
 import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
+import { useSEO } from "../hooks/useSEO";
 
 export default function Home() {
+  useSEO({
+    title: "Home",
+    description: "Your BookPals feed: community activity, top matches, and communities to discover.",
+  });
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activity, setActivity] = useState([]);
@@ -44,6 +49,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-paper py-8 px-4">
       <div className="max-w-3xl mx-auto space-y-10">
+        <h1 className="sr-only">Home</h1>
         {/* Community activity feed */}
         <section>
           <h2 className="font-display text-2xl font-bold text-ink mb-4">

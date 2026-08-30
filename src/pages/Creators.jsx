@@ -5,8 +5,13 @@ import { CreatorCard } from "../components/creators/CreatorCard";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { cn } from "../components/ui/cn";
+import { useSEO } from "../hooks/useSEO";
 
 export default function Creators() {
+  useSEO({
+    title: "Creators",
+    description: "Discover writers, illustrators, and other creators publishing on BookPals.",
+  });
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

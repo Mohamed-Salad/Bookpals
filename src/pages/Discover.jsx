@@ -14,9 +14,14 @@ import { Tabs, TabsList, TabsTrigger } from "../components/ui/Tabs";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
+import { useSEO } from "../hooks/useSEO";
 
 // Main Discover component
 export default function Discover() {
+  useSEO({
+    title: "Discover",
+    description: "Find readers and communities to connect with on BookPals.",
+  });
   const location = useLocation();
   const { user } = useAuth();
   const [query, setQuery] = useState("");

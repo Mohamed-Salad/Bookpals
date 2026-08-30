@@ -2,8 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../ui/Card";
 import { PreferencesForm } from "./PreferencesForm";
+import { useSEO } from "../../hooks/useSEO";
 
 export default function Interests() {
+  useSEO({
+    title: "Reading Preferences",
+    description: "Update your reading preferences to improve your BookPals matches.",
+  });
   const navigate = useNavigate();
   const { user } = useAuth();
 

@@ -8,6 +8,7 @@ import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { cn } from "../components/ui/cn";
+import { useSEO } from "../hooks/useSEO";
 
 const STEPS = ["Welcome", "Role", "Interests", "Communities"];
 
@@ -39,6 +40,7 @@ function StepProgress({ step }) {
 // (existing PreferencesForm, reused as-is) -> suggested communities. Each
 // step saves as it goes so leaving mid-flow doesn't lose earlier answers.
 export default function Onboarding() {
+  useSEO({ title: "Welcome", description: "Set up your BookPals profile and reading preferences." });
   const navigate = useNavigate();
   const { user } = useAuth();
   const [step, setStep] = useState(0);
