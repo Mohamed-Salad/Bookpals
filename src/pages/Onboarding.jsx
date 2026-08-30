@@ -25,7 +25,7 @@ function StepProgress({ step }) {
           <div
             className={cn(
               "h-1.5 rounded-full",
-              i <= step ? "bg-accent" : "bg-ink/10"
+              i <= step ? "bg-accent-dark" : "bg-ink/10"
             )}
           />
           <p className="mt-1 text-xs text-ink-muted hidden sm:block">{label}</p>
@@ -137,7 +137,7 @@ export default function Onboarding() {
                   className={cn(
                     "px-4 py-6 rounded-lg text-sm font-medium border transition-colors",
                     role === value
-                      ? "bg-accent text-white border-accent"
+                      ? "bg-accent-dark text-white border-accent-dark"
                       : "bg-surface text-ink border-ink/15 hover:bg-surface-raised"
                   )}
                 >

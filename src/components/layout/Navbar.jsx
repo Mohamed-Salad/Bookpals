@@ -124,7 +124,7 @@ const Navbar = () => {
           {/* Logo and Navigation Links */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link to={user ? "/home" : "/"} className="font-display text-lg font-bold text-accent">
+              <Link to={user ? "/home" : "/"} className="font-display text-lg font-bold text-accent-dark">
                 BookPals
               </Link>
             </div>

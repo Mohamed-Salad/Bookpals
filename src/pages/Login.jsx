@@ -72,7 +72,7 @@ export default function Login() {
             </h2>
             <p className="mt-2 text-center text-sm text-ink-muted">
               Don't have an account?{" "}
-              <Link to="/signup" className="font-medium text-accent hover:text-accent-dark">
+              <Link to="/signup" className="font-medium text-accent-dark hover:underline">
                 Sign up here
               </Link>
             </p>

@@ -38,7 +38,7 @@ const Communities = () => {
           <h1 className="font-display text-2xl font-bold text-ink">Community Posts</h1>
           <Link
             to="/discover?tab=communities"
-            className="text-accent hover:text-accent-dark transition-colors"
+            className="text-accent-dark hover:underline transition-colors"
           >
             Find Communities
           </Link>

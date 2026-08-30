@@ -97,7 +97,7 @@ export function PreferencesForm({ user, onComplete, submitLabel = "Save Preferen
                     className={cn(
                       "px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 border",
                       selected
-                        ? "bg-accent text-white border-accent"
+                        ? "bg-accent-dark text-white border-accent-dark"
                         : "bg-surface text-ink border-ink/15 hover:bg-surface-raised"
                     )}
                   >

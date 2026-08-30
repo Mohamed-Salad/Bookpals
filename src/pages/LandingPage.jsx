@@ -111,7 +111,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="bg-accent py-20 text-white">
+      <section className="bg-accent-dark py-20 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-3xl font-bold mb-8">
             Ready to Join Our Community?
@@ -119,7 +119,7 @@ const LandingPage = () => {
           <p className="text-xl mb-8 opacity-90">
             Start your journey with fellow book lovers today.
           </p>
-          <Link to="/signup" className={buttonVariants("secondary", "bg-white text-accent hover:bg-white/90")}>
+          <Link to="/signup" className={buttonVariants("secondary", "bg-white text-accent-dark hover:bg-white/90")}>
             Get Started Now
           </Link>
         </div>

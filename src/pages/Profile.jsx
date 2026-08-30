@@ -118,7 +118,7 @@ const Profile = () => {
                   name={formData.username || "User"}
                   className="w-full h-full border-4 border-surface"
                 />
-                <label className="absolute bottom-0 right-0 bg-accent hover:bg-accent-dark p-2 rounded-full cursor-pointer transition-colors shadow-lg">
+                <label className="absolute bottom-0 right-0 bg-accent-dark hover:brightness-110 p-2 rounded-full cursor-pointer transition-colors shadow-lg">
                   <input
                     type="file"
                     accept="image/*"
