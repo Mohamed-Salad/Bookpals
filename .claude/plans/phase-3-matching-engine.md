@@ -1,12 +1,11 @@
 # Phase 3 — Matching Engine
 
-**Status: code complete, migration NOT yet applied.** See [00-STATUS.md](00-STATUS.md) for repo
-traps and the validation gate. **Blocking next step: run `supabase/migrations/0002_matching.sql`
-in the Supabase SQL Editor** — nothing here has been executed against the live project, so
-`/matches` and the Home "Top Matches" rail will error (`match_users` doesn't exist yet) until that
-happens. Client build is green either way; the error only shows at runtime, logged in.
+**Status: DONE.** Migration applied by Mr Salad 2026-08-30 via the Supabase SQL Editor; verified live
+by this session with a read-only RPC probe (see DB-AUDIT-LOG.md). See [00-STATUS.md](00-STATUS.md)
+for repo traps, the validation gate, and a minor non-urgent hardening note (anon-role EXECUTE grant).
+**Still open**: a real logged-in pass to eyeball actual scored matches.
 
-### Task 3.1: Scoring RPC migration — file written (`supabase/migrations/0002_matching.sql`), NOT run
+### Task 3.1: Scoring RPC migration — DONE, applied and verified live
 - **Action**: new file `supabase/migrations/0002_matching.sql`. Function:
 
 ```sql
@@ -64,8 +63,10 @@ $$;
   pattern the jaccard terms already used. (2) added a `shared_genres text[]` return column (the actual
   intersected genre list) — the original design only exposed `genre_score` (a similarity float), which
   isn't enough to render Task 3.3's "top-2 shared genres as Badges."
-- **Validate**: run in Supabase SQL editor with two seeded test users; scores 0–1. **Not yet done —
-  see status line above.**
+- **Validate**: run in Supabase SQL editor with two seeded test users; scores 0–1. Technical
+  existence/permissions verified via anon-key REST probe (200, empty result — correct for a
+  nonexistent user, RLS blocks anon reads as expected). **Real scored-users check still open** —
+  needs two real accounts with overlapping preferences and a logged-in session.
 
 ### Task 3.2: Client rewrite — DONE
 `src/services/recommendationService.js` gutted to `useMatches(userId, limit)`, a TanStack Query hook
@@ -84,5 +85,5 @@ sent user simply drops out of the list on refetch - no separate "pending" status
 previously only shown on Home/CommunityView; added `/matches` to that list too so the page is
 reachable/coherent - Discover/Communities/Profile/Search still lack the sidebar, a pre-existing Phase
 2.3 gap not fixed here (out of scope for matching engine work).
-- **Validate**: connect flow end-to-end between two test accounts. **Not yet done — needs 3.1's
-  migration applied first, then a logged-in pass** (this session has no Supabase login).
+- **Validate**: connect flow end-to-end between two test accounts. Migration's applied now — only
+  blocker left is a logged-in pass (this session has no Supabase login).

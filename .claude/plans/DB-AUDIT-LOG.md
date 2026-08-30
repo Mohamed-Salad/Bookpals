@@ -14,3 +14,10 @@ Result: `404 PGRST202` — function does not exist. No mutation, confirmed migra
 **2026-08-30** — User reported Supabase MCP reconnected. Checked via `ToolSearch` for any
 `supabase`-named tool; none found. Told the user before taking any DB action rather than assuming
 access — action deferred pending confirmation.
+
+**2026-08-30** — Still no MCP DB tool available. Gave the user the full text of
+`0002_matching.sql`; they ran it manually via the Supabase SQL Editor (their action, not mine).
+Verified after with the same read-only REST probe as the first entry: `POST .../rpc/match_users`
+with `p_user_id: 00000000-...`, anon key. Result: `200 []` — function exists, executes cleanly,
+returns no rows for a nonexistent user (correct). No mutation performed by this session; read-only
+confirmation only. Phase 3 migration is now live.

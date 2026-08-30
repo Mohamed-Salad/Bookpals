@@ -31,12 +31,18 @@ logged there (read-only checks included). Check it before assuming any migration
     uses the already-correct `PostItem` component instead. Build verified green (`vite build`),
     landing page smoke-tested with Playwright (0 console errors). Home feed itself not yet visually
     verified logged-in — do that next time you're in the app.
-- **Phase 3 (Matching Engine) — client code done, migration NOT applied.** `useMatches` hook,
-  `MatchCard` (score + breakdown popover + Connect CTA), and the full `/matches` page are all built
-  and wired into routing/Sidebar. Build is green. **Blocking**: `supabase/migrations/0002_matching.sql`
-  has not been run against the live project yet — until it is, `/matches` and Home's "Top Matches"
-  rail will error at runtime (RPC doesn't exist). See phase-3 file for two corrections made to that
-  SQL before it was ever run (NULL-propagation bug, missing `shared_genres` column).
+- **Phase 3 (Matching Engine) — DONE, migration applied 2026-08-30.** `useMatches` hook, `MatchCard`
+  (score + breakdown popover + Connect CTA), and the full `/matches` page all built and wired.
+  `0002_matching.sql` run by Mr Salad via the Supabase SQL Editor; verified live via a read-only RPC
+  probe (see DB-AUDIT-LOG.md) — function exists, executes, RLS correctly returns nothing for an
+  unauthenticated/nonexistent caller. **Not yet done**: a real logged-in pass to see actual scored
+  matches (this session has no login). Minor hardening note, not urgent: `match_users` is currently
+  invocable by the `anon` role too (Postgres grants `EXECUTE` to `PUBLIC` by default unless revoked;
+  the migration only added `to authenticated`, didn't revoke from `public`) — harmless today because
+  `security invoker` + RLS on `user_preferences`/`profiles` already restricts anon reads to zero rows
+  regardless, but `revoke execute ... from public` before the grant would be the tidier belt-and-braces
+  version. Worth a one-line follow-up migration if you want it, not done here since it's not asked for
+  and isn't an active leak.
 - **Phase 4.1a (taxonomy broadening) — DONE** (2026-08-30, pure client-side, no migration). See
   phase-4-onboarding.md. Rest of Phase 4 (secondary_types/pronouns/role columns, multi-step
   onboarding, a11y pass) not started.
@@ -100,7 +106,7 @@ git status              # .env.local NEVER staged
 ## Acceptance
 - [x] P1: build green on React 19/Vite 8/Tailwind 4; security fixes in; one questionnaire (done 2026-07-25)
 - [x] P2: design tokens ✅ + ui/ primitives on every route ✅ + Home is a feed ✅ (done 2026-08-25)
-- [ ] P3: match_users RPC live (client + /matches page done 2026-08-28, migration not yet applied)
+- [x] P3: match_users RPC live (client done 2026-08-28, migration applied + verified 2026-08-30)
 - [ ] P4: inclusive taxonomy; 4-step onboarding; keyboard-only pass
 - [ ] P5: /creators directory; works CRUD; creator match bonus
 - [ ] P6: realtime chat on Supabase; Stream fully removed
