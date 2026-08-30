@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useChat } from "../context/ChatContext";
-import { streamClient, createDirectChannel } from "../services/streamClient";
+import { getOrCreateDirectConversation } from "../services/chatService";
 import {
   sendFriendRequest,
   acceptFriendRequest,
@@ -37,7 +36,6 @@ const UserCard = ({
   showConnect = false,
 }) => {
   const { user: currentUser } = useAuth();
-  const { setActiveChannel } = useChat();
   const navigate = useNavigate();
   const {
     id,
@@ -141,18 +139,8 @@ const UserCard = ({
     try {
       setIsStartingChat(true);
 
-      // Create/get the channel
-      const channel = await createDirectChannel(currentUser.id, id);
-      await setActiveChannel(channel);
-
-      // Emit event for UnifiedSidebar to update its list
-      const chatEvent = new CustomEvent("newChatCreated", {
-        detail: { channelId: channel.cid, userId: id },
-      });
-      window.dispatchEvent(chatEvent);
-
-      // Navigate to chat
-      navigate(`/chat/${channel.cid}`);
+      const conversationId = await getOrCreateDirectConversation(currentUser.id, id);
+      navigate(`/chat/${conversationId}`);
     } catch (error) {
       console.error("Error starting chat:", error);
       toast.error("Failed to start chat. Please try again.");

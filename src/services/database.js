@@ -1,9 +1,5 @@
 import { supabase } from "./supabaseClient";
-import {
-  createDirectChannel,
-  streamClient,
-  connectToChat,
-} from "./streamClient";
+import { getOrCreateDirectConversation } from "./chatService";
 
 console.log(
   "[Database Module] Imported supabase type:",
@@ -23,8 +19,6 @@ const assertUuid = (id, label) => {
     throw new Error(`Invalid ${label}: expected a UUID`);
   }
 };
-
-// Re-export createDirectChannel from streamClient
 
 // ==========================
 // Profile Methods
@@ -314,18 +308,8 @@ export const acceptFriendRequest = async (userId, requesterId) => {
 
     if (error) throw error;
 
-    // Connect to Stream Chat if not already connected
-    if (!streamClient.userID) {
-      await connectToChat();
-    }
-
-    // Create a direct chat channel
-    const channel = streamClient.channel("messaging", {
-      members: [userId, requesterId],
-    });
-
-    await channel.create();
-    await channel.watch();
+    // Start a direct conversation so the new friends can message right away.
+    await getOrCreateDirectConversation(userId, requesterId);
 
     return true;
   } catch (error) {
@@ -369,29 +353,6 @@ export const removeFriend = async (userId, friendId) => {
       );
 
     if (error1) throw error1;
-
-    // Handle Stream chat cleanup
-    try {
-      // Connect to Stream Chat if not already connected
-      if (!streamClient?.userID) {
-        await connectToChat();
-      }
-
-      if (streamClient?.userID) {
-        // Remove the chat channel
-        const channels = await streamClient.queryChannels({
-          type: "messaging",
-          members: { $in: [userId, friendId] },
-        });
-
-        for (const channel of channels) {
-          await channel.delete();
-        }
-      }
-    } catch (streamError) {
-      console.error("[Database] Stream cleanup error:", streamError);
-      // Don't throw here - the friend removal was successful
-    }
 
     return true;
   } catch (error) {
@@ -1180,28 +1141,6 @@ export const reactToComment = async (commentId, reactionType) => {
   } catch (error) {
     console.error("[Database] reactToComment error:", error);
     return false;
-  }
-};
-
-// Add a new function to get chat channels for a user
-export const getUserChatChannels = async (userId) => {
-  try {
-    // Connect to Stream Chat if not already connected
-    if (!streamClient.userID) {
-      await connectToChat();
-    }
-
-    // Get all channels where the user is a member
-    const channels = await streamClient.queryChannels(
-      { type: "messaging", members: { $in: [userId] } },
-      { last_message_at: -1 },
-      { watch: true, state: true }
-    );
-
-    return channels;
-  } catch (error) {
-    console.error("[Database] getUserChatChannels error:", error);
-    throw error;
   }
 };
 

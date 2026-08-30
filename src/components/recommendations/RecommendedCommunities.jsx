@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getRecommendedCommunities } from "../../services/recommendationService";
 import CommunityCard from "../socials/CommunityCard"; // Assuming path is correct
-import { LoadingIndicator } from "stream-chat-react"; // Or your own loader
+import { Skeleton } from "../ui/Skeleton";
 
 const RecommendedCommunities = ({ limit = 3 }) => {
   const { user } = useAuth();
@@ -35,8 +35,10 @@ const RecommendedCommunities = ({ limit = 3 }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center p-4 min-h-[150px]">
-        <LoadingIndicator size={30} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: limit }).map((_, i) => (
+          <Skeleton key={i} className="h-32 w-full" />
+        ))}
       </div>
     );
   }

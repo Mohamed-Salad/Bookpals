@@ -1,6 +1,5 @@
 import { supabase } from "./supabaseClient";
 import { createProfile } from "./database";
-import { streamClient } from "./streamClient";
 
 // Rate limiting configuration
 const RATE_LIMIT = {
@@ -66,19 +65,11 @@ export const signIn = async (email, password) => {
 
 export const signOut = async () => {
   try {
-    // First disconnect from chat if connected
-    if (streamClient.userID) {
-      console.log("📤 Disconnecting from chat before logout");
-      await streamClient.disconnectUser();
-    }
-
-    // Then sign out from Supabase
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
 
     // Clear any stored sensitive data
     localStorage.removeItem("user_preferences");
-    console.log("✅ Successfully signed out and disconnected from chat");
   } catch (error) {
     console.error("❌ Signout error:", error);
     throw error;

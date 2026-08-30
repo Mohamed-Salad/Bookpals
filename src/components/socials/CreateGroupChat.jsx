@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { streamClient } from "../../services/streamClient";
+import { createGroupConversation } from "../../services/chatService";
 import { supabase } from "../../services/supabaseClient";
 import { toast } from "react-toastify";
 
@@ -87,24 +87,17 @@ const CreateGroupChat = ({ onClose }) => {
       setLoading(true);
       setError("");
 
-      const channel = await streamClient.channel(
-        "messaging",
-        `msg-group-${Date.now()}`,
-        {
-          name: groupName,
-          members: [user.id, ...selectedUsers.map((u) => u.id)],
-          created_by_id: user.id,
-        }
+      const conversationId = await createGroupConversation(
+        user.id,
+        groupName,
+        selectedUsers.map((u) => u.id)
       );
-
-      await channel.create();
-      await channel.watch();
 
       // Close modal first
       onClose?.();
 
       // Then navigate
-      navigate(`/chat/${channel.id}`);
+      navigate(`/chat/${conversationId}`);
 
       toast.success("Group chat created successfully!");
     } catch (err) {

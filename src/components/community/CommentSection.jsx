@@ -5,7 +5,7 @@ import {
   createComment,
 } from "../../services/database";
 // import CommentItem from './CommentItem'; // Import later
-import { LoadingIndicator } from "stream-chat-react"; // Or your loader
+import { Skeleton } from "../ui/Skeleton";
 
 const CommentSection = ({ postId }) => {
   const { user } = useAuth();
@@ -100,7 +100,7 @@ const CommentSection = ({ postId }) => {
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center py-4">
-          <LoadingIndicator size={20} />
+          <Skeleton className="h-5 w-5 rounded-full" />
         </div>
       )}
 
