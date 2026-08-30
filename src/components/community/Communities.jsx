@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { getCommunityDiscussions } from "../../services/database";
+import { getUserCommunities, getCommunityDiscussions } from "../../services/database";
 import PostItem from "./PostItem";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { Link } from "react-router-dom";
@@ -17,8 +17,16 @@ const Communities = () => {
     setLoading(true);
     setError(null);
     try {
-      const postsData = await getCommunityDiscussions(user.id);
-      setPosts(postsData);
+      // getCommunityDiscussions takes a community id, not a user id - fetch
+      // the user's joined communities first, then merge their discussions.
+      const communities = await getUserCommunities(user.id);
+      const discussionLists = await Promise.all(
+        communities.map((c) => getCommunityDiscussions(c.id))
+      );
+      const merged = discussionLists
+        .flat()
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setPosts(merged);
     } catch (error) {
       console.error("Error loading posts:", error);
       setError("Failed to load posts");
@@ -28,8 +36,8 @@ const Communities = () => {
   };
 
   useEffect(() => {
-    loadPosts();
-  }, []);
+    if (user?.id) loadPosts();
+  }, [user?.id]);
 
   return (
     <div className="container mx-auto px-4 py-8">
