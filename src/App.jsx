@@ -17,6 +17,7 @@ import Home from "./pages/Home";
 import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import Interests from "./components/onboarding/Interests";
+import Onboarding from "./pages/Onboarding";
 import Communities from "./components/community/Communities";
 import CommunityView from "./components/community/CommunityView";
 import CreateGroupChat from "./components/socials/CreateGroupChat";
@@ -92,6 +93,14 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <Interests />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <Onboarding />
                   </ProtectedRoute>
                 }
               />

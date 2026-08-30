@@ -66,7 +66,7 @@ export default function Signup() {
         values.username
       );
       setUser(user);
-      navigate("/interests");
+      navigate("/onboarding");
     } catch (error) {
       setError(error.message || "Failed to sign up. Please try again.");
     } finally {

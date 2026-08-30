@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { slideIn } from "../utils/animations";
 import { signIn, signInWithProvider } from "../services/auth";
+import { getPreferences } from "../services/database";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
@@ -30,7 +31,14 @@ export default function Login() {
       setError(null);
       const { user } = await signIn(values.email, values.password);
       setUser(user);
-      navigate("/home");
+      // First login (no preferences saved yet) goes through onboarding;
+      // returning users go straight to Home.
+      try {
+        await getPreferences(user.id);
+        navigate("/home");
+      } catch {
+        navigate("/onboarding");
+      }
     } catch (error) {
       setError(error.message || "Failed to sign in. Please try again.");
     } finally {
