@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /signup
+Disallow: /home
+Disallow: /profile
+Disallow: /communities
+Disallow: /community/
+Disallow: /discover
+Disallow: /matches
+Disallow: /creators
+Disallow: /chat
+Disallow: /interests
+Disallow: /onboarding
+Disallow: /search
+Disallow: /create-group
+Disallow: /auth/callback
+
+Sitemap: https://bookpals.app/sitemap.xml

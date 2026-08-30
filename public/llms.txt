@@ -1,0 +1,15 @@
+# BookPals
+
+> A reading-community platform. Users get matched with similar readers, join
+> genre communities, chat in real time, and discover new books through people
+> with shared taste.
+
+BookPals is a web application gated behind account sign-up - most pages
+require authentication and are not publicly crawlable content. The pages
+below are the public surface.
+
+## Public pages
+
+- [Home](https://bookpals.app/): what BookPals is and how it works
+- [Sign up](https://bookpals.app/signup): create an account
+- [Log in](https://bookpals.app/login): sign in to an existing account
