@@ -9,6 +9,9 @@ Phase files: [phase-1-foundation.md](phase-1-foundation.md) · [phase-2-design-s
 [phase-3-matching-engine.md](phase-3-matching-engine.md) · [phase-4-onboarding.md](phase-4-onboarding.md) ·
 [phase-5-creators.md](phase-5-creators.md) · [phase-6-chat.md](phase-6-chat.md)
 
+**[DB-AUDIT-LOG.md](DB-AUDIT-LOG.md)** — every action taken against the *live* Supabase project gets
+logged there (read-only checks included). Check it before assuming any migration has/hasn't run.
+
 ---
 
 ## Current state (verified 2026-08-25, cross-checked against `git log`)
@@ -34,7 +37,10 @@ Phase files: [phase-1-foundation.md](phase-1-foundation.md) · [phase-2-design-s
   has not been run against the live project yet — until it is, `/matches` and Home's "Top Matches"
   rail will error at runtime (RPC doesn't exist). See phase-3 file for two corrections made to that
   SQL before it was ever run (NULL-propagation bug, missing `shared_genres` column).
-- **Phases 4–6 — not started.**
+- **Phase 4.1a (taxonomy broadening) — DONE** (2026-08-30, pure client-side, no migration). See
+  phase-4-onboarding.md. Rest of Phase 4 (secondary_types/pronouns/role columns, multi-step
+  onboarding, a11y pass) not started.
+- **Phases 5–6 — not started.**
 - **Also added this session, outside the phase plan**: minimal GitHub Actions CI (`.github/workflows/ci.yml`,
   runs `npm ci --legacy-peer-deps && npm run build` on push/PR to `main`) and a multi-stage `Dockerfile`
   + `nginx.conf` (builds the Vite app, serves via nginx, ~97MB image, verified working locally).

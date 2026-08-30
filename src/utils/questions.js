@@ -5,6 +5,16 @@ export const READING_TYPES = [
   "Online Novels",
   "Traditional Comics",
   "Online Comics",
+  // Added to cover online-native reading communities as first-class, not
+  // an afterthought - web fiction, fanfic, and webtoons each have their
+  // own platforms/culture distinct from "Online Novels"/"Online Comics".
+  "Web Fiction / Serials",
+  "Fanfiction",
+  "Light Novels",
+  "Webtoons / Manhwa",
+  "Audiobooks & Podcasts",
+  "Interactive Fiction / Visual Novels",
+  "Zines & Indie Press",
 ];
 
 export const GENRES = [
@@ -39,6 +49,23 @@ export const GENRES = [
   "Thriller",
   "Travel",
   "Young Adult",
+  // Added - existing list skewed toward mainstream Western print genres;
+  // these fill real gaps without removing/renaming anything already live
+  // (renaming an option would silently orphan any user's stored value).
+  "LGBTQ+ Voices",
+  "Disability & Neurodivergent Voices",
+  "World Literature (Translated)",
+  "Mythology & Folklore",
+  "Religious & Spiritual",
+  "True Crime",
+  "Literary Fiction",
+  "Cookbooks & Food Writing",
+  "Nature & Environmental Writing",
+  "LitRPG / GameLit",
+  "War & Military Fiction",
+  "Western",
+  "Politics & Current Affairs",
+  "Adult",
 ];
 
 export const FREQUENCIES = ["Daily", "Weekly", "Occasionally", "Rarely"];
@@ -49,6 +76,10 @@ export const READING_FORMATS = [
   "Paperback",
   "E-reader",
   "Audiobook",
+  // Added - the format most online-native readers actually use (reading
+  // directly on a site/app), previously unrepresented.
+  "Web / App",
+  "Large Print",
 ];
 
 // Validation functions
