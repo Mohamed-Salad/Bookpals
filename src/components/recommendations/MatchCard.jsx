@@ -12,9 +12,8 @@ import { useAuth } from "../../context/AuthContext";
 const pct = (n) => `${Math.round((n ?? 0) * 100)}%`;
 const tick = (n) => (n >= 1 ? "✓" : n > 0 ? "~" : "✗");
 
-// Renders a match_users RPC row (supabase/migrations/0002_matching.sql).
-// Also accepts the older flat placeholder shape ({ username, score,
-// sharedGenres }) so it keeps working anywhere it hasn't been swapped over.
+// Renders a match_users RPC row (supabase/migrations/0002_matching.sql,
+// is_creator added by 0005_creator_matching.sql).
 export function MatchCard({ match }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -33,6 +32,7 @@ export function MatchCard({ match }) {
     freq_score = 0,
     format_score = 0,
     time_score = 0,
+    is_creator = false,
   } = match;
 
   const handleConnect = async () => {
@@ -54,6 +54,7 @@ export function MatchCard({ match }) {
     <Card className="flex flex-col items-center text-center gap-2 p-4">
       <Avatar src={avatar_url} name={username} size="lg" />
       <p className="font-medium text-ink">{username}</p>
+      {is_creator && <Badge variant="accent">Creator you may like</Badge>}
 
       <Popover className="relative">
         <PopoverButton className="focus:outline-none">
