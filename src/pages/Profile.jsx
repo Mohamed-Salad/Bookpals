@@ -10,10 +10,13 @@ import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { Avatar } from "../components/ui/Avatar";
 import { Modal } from "../components/ui/Modal";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/Tabs";
+import { CreatorTab } from "../components/creators/CreatorTab";
 
 const Profile = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [role, setRole] = useState("reader");
   const [formData, setFormData] = useState({
     username: "",
     bio: "",
@@ -37,6 +40,7 @@ const Profile = () => {
           const isComplete = !!(profileData?.bio && profileData?.avatar_url);
           setProfileComplete(isComplete);
           setShowTutorial(!isComplete);
+          setRole(profileData?.role || "reader");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -159,6 +163,14 @@ const Profile = () => {
           </div>
           {/* Profile Content */}
           <div className="pt-20 px-8 pb-8">
+          <Tabs defaultValue="profile">
+            {(role === "creator" || role === "both") && (
+              <TabsList className="mb-6">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="creator">Creator</TabsTrigger>
+              </TabsList>
+            )}
+            <TabsContent value="profile">
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
@@ -226,6 +238,13 @@ const Profile = () => {
                 )}
               </div>
             )}
+            </TabsContent>
+            {(role === "creator" || role === "both") && (
+              <TabsContent value="creator">
+                <CreatorTab userId={user.id} />
+              </TabsContent>
+            )}
+          </Tabs>
           </div>
         </Card>
       </div>

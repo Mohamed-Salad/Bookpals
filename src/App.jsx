@@ -18,6 +18,7 @@ import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import Interests from "./components/onboarding/Interests";
 import Onboarding from "./pages/Onboarding";
+import Creators from "./pages/Creators";
 import Communities from "./components/community/Communities";
 import CommunityView from "./components/community/CommunityView";
 import CreateGroupChat from "./components/socials/CreateGroupChat";
@@ -50,6 +51,7 @@ const AppContent = () => {
 
   const isCommunityPage = location.pathname.startsWith("/community/"); // More specific check
   const isMatchesPage = location.pathname.startsWith("/matches");
+  const isCreatorsPage = location.pathname.startsWith("/creators");
 
   // Toggle for Left Sidebar
   const toggleSidebar = () => {
@@ -58,7 +60,9 @@ const AppContent = () => {
 
   // Determine if sidebars should be shown
   const showSidebar =
-    user && (isHomePage || isCommunityPage || isMatchesPage) && !isChatPage;
+    user &&
+    (isHomePage || isCommunityPage || isMatchesPage || isCreatorsPage) &&
+    !isChatPage;
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -101,6 +105,14 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <Onboarding />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/creators"
+                element={
+                  <ProtectedRoute>
+                    <Creators />
                   </ProtectedRoute>
                 }
               />

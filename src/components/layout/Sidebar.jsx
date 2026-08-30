@@ -10,15 +10,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { cn } from "../ui/cn";
 
-// Creators route doesn't exist yet (Phase 5) - shown as a disabled
-// placeholder rather than left off the nav entirely, so the planned
-// information architecture is visible from day one.
 const NAV_ITEMS = [
   { to: "/home", label: "Home", icon: HomeIcon },
   { to: "/discover", label: "Discover", icon: MagnifyingGlassIcon },
   { to: "/communities", label: "Communities", icon: UserGroupIcon },
   { to: "/matches", label: "Matches", icon: HeartIcon },
-  { to: "/creators", label: "Creators", icon: PencilSquareIcon, comingSoon: true },
+  { to: "/creators", label: "Creators", icon: PencilSquareIcon },
   { to: "/chat", label: "Chat", icon: ChatBubbleLeftRightIcon },
   { to: "/profile", label: "Profile", icon: UserIcon },
 ];
