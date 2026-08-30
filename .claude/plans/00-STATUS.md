@@ -43,14 +43,10 @@ logged there (read-only checks included). Check it before assuming any migration
   regardless, but `revoke execute ... from public` before the grant would be the tidier belt-and-braces
   version. Worth a one-line follow-up migration if you want it, not done here since it's not asked for
   and isn't an active leak.
-- **Phase 4 — DONE except one item and one blocking migration.** Taxonomy broadened (4.1a), schema
-  for secondary_types/pronouns/display_name/role written (4.1b), full multi-step `/onboarding` wizard
-  built and routed (4.2), amber-accent WCAG AA contrast bugs found and fixed app-wide (4.3, partial).
-  See phase-4-onboarding.md for full detail.
-  - **BLOCKING — higher urgency than the Phase 3 migration was**: `supabase/migrations/0003_inclusive.sql`
-    has NOT been applied yet, and unlike Phase 3's isolated new feature, this one sits in front of
-    already-working functionality — `/interests` (preference editing) and the entire new `/onboarding`
-    flow (which `/signup` now routes into) will error until it runs. **Apply this before using the app.**
+- **Phase 4 — DONE except one item.** Taxonomy broadened (4.1a), `secondary_types`/`pronouns`/
+  `display_name`/`role` schema written and applied (4.1b, migration confirmed live 2026-08-30 via
+  REST probe — see DB-AUDIT-LOG.md), full multi-step `/onboarding` wizard built and routed (4.2),
+  amber-accent WCAG AA contrast bugs found and fixed app-wide (4.3, partial). See phase-4-onboarding.md.
   - Remaining, not urgent: wrap `framer-motion` transitions with `useReducedMotion` (WCAG AAA, 7+ files,
     needs OS-level motion emulation to verify — not rushed blind).
 - **Phases 5–6 — not started.**
@@ -114,7 +110,7 @@ git status              # .env.local NEVER staged
 - [x] P1: build green on React 19/Vite 8/Tailwind 4; security fixes in; one questionnaire (done 2026-07-25)
 - [x] P2: design tokens ✅ + ui/ primitives on every route ✅ + Home is a feed ✅ (done 2026-08-25)
 - [x] P3: match_users RPC live (client done 2026-08-28, migration applied + verified 2026-08-30)
-- [ ] P4: inclusive taxonomy ✅ + 4-step onboarding ✅ + contrast fixed ✅ (done 2026-08-30, migration
-      0003_inclusive.sql NOT yet applied - blocking); keyboard-only pass + reduced-motion still open
+- [x] P4: inclusive taxonomy ✅ + 4-step onboarding ✅ + contrast fixed ✅ + migration applied &
+      verified ✅ (done 2026-08-30); keyboard-only pass + reduced-motion still open (not blocking)
 - [ ] P5: /creators directory; works CRUD; creator match bonus
 - [ ] P6: realtime chat on Supabase; Stream fully removed

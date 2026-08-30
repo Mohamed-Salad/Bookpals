@@ -21,3 +21,12 @@ Verified after with the same read-only REST probe as the first entry: `POST .../
 with `p_user_id: 00000000-...`, anon key. Result: `200 []` — function exists, executes cleanly,
 returns no rows for a nonexistent user (correct). No mutation performed by this session; read-only
 confirmation only. Phase 3 migration is now live.
+
+**2026-08-30** — Gave the user the full text of `0003_inclusive.sql`; they ran it manually via the
+Supabase SQL Editor (their action, not mine). Verified after with read-only REST probes: `GET
+.../profiles?select=role,pronouns,display_name&limit=1` and `GET
+.../user_preferences?select=secondary_types&limit=1`, anon key. Both `200 []` — PostgREST validates
+requested columns against schema before RLS applies, so a 200 (vs a 400 "column does not exist")
+confirms all four new columns exist; empty result is RLS correctly blocking anon reads, not an
+error. No mutation performed by this session. Phase 4.1b migration is now live; /interests and
+/onboarding are unblocked.

@@ -1,8 +1,8 @@
 # Phase 4 — Inclusive Registration & Onboarding
 
 **Status: DONE except one item.** 4.1a, 4.1b, 4.2, and most of 4.3 done 2026-08-30.
+`0003_inclusive.sql` applied and verified live (REST probe, see DB-AUDIT-LOG.md).
 See [00-STATUS.md](00-STATUS.md) for repo traps and the validation gate.
-**Blocking**: `supabase/migrations/0003_inclusive.sql` must run before this ships — see 4.1b.
 
 ### Task 4.1a: Broaden the taxonomy — DONE
 `src/utils/questions.js` `READING_TYPES`/`GENRES`/`READING_FORMATS` expanded, driven by the user
@@ -24,18 +24,16 @@ already `text[]`, so no migration needed.
 - Matching algorithm needed zero code changes — `reading_type`/`favorite_genres` scoring is plain
   string comparison, generalizes to any list. Build green.
 
-### Task 4.1b: `secondary_types` + profile columns — code DONE, migration NOT yet applied
+### Task 4.1b: `secondary_types` + profile columns — DONE, migration applied
 - `supabase/migrations/0003_inclusive.sql` written: `user_preferences.secondary_types text[]`,
   `profiles.pronouns/display_name/role` (role check-constrained to reader/creator/both). All
   additive/nullable-or-defaulted, safe for existing rows.
 - `questions.js`: new optional multi-select question ("Any other ways you read?"), renders
   automatically since `Interests.jsx` is data-driven off `READING_QUESTIONS`.
 - `database.js` `createPreferences` now includes `secondary_types` in its upsert unconditionally.
-- **BLOCKING, higher severity than a normal pending migration**: this isn't an isolated new feature
-  like Phase 3's RPC was — `createPreferences`/`updateProfile` are already-live, in-use functions.
-  Until `0003_inclusive.sql` runs, saving/editing preferences via `/interests` AND the entire
-  `/onboarding` wizard (steps 1-2 write `display_name`/`pronouns`/`role`) will error with "column does
-  not exist." **Run this migration before using the app again.**
+- Migration applied by Mr Salad 2026-08-30; verified via read-only REST probes on both tables
+  (`profiles?select=role,pronouns,display_name`, `user_preferences?select=secondary_types`, both
+  `200 []` — columns exist, RLS correctly blocks anon reads). `/interests` and `/onboarding` unblocked.
 
 ### Task 4.2: Multi-step onboarding — DONE
 New `/onboarding`: welcome (display name + optional pronouns) → role (reader/creator/both) → reading
@@ -53,7 +51,8 @@ pattern as other orphaned files found this session) — should have `Read` it fi
 a fresh file; got lucky it was dead code.
 
 - **Validate**: fresh signup lands in onboarding; completing it lands on Home with matches; skipping
-  optional fields works. **Not yet done — blocked on 0003_inclusive.sql, see 4.1b.**
+  optional fields works. Migration's applied now — only blocker left is a logged-in pass (this session
+  has no Supabase login).
 
 ### Task 4.3: A11y pass — mostly DONE
 - Form fields labelled: already satisfied — `ui/Input` renders a proper `<label htmlFor>` by default,
@@ -74,5 +73,5 @@ a fresh file; got lucky it was dead code.
   transitions, not large/parallax). WCAG AAA-level, not the AA bar the contrast fix targeted; needs
   OS-level motion-preference emulation to verify, which wasn't done this session. Genuine remaining
   item, not skipped for lack of importance — just not rushed blind.
-- **Validate**: keyboard-only signup → onboarding → post creation succeeds. Not yet done (needs
-  0003_inclusive.sql applied + a real logged-in pass).
+- **Validate**: keyboard-only signup → onboarding → post creation succeeds. Not yet done — needs a
+  real logged-in pass (this session has no Supabase login).
