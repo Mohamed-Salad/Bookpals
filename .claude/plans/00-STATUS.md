@@ -49,12 +49,10 @@ logged there (read-only checks included). Check it before assuming any migration
   amber-accent WCAG AA contrast bugs found and fixed app-wide (4.3, partial). See phase-4-onboarding.md.
   - Remaining, not urgent: wrap `framer-motion` transitions with `useReducedMotion` (WCAG AAA, 7+ files,
     needs OS-level motion emulation to verify — not rushed blind).
-- **Phase 5 (Creators Space) — DONE, two migrations not yet applied.** `creator_profiles`/`works`
-  schema (`0004_creators.sql`), `/creators` directory + Profile "Creator" tab + works CRUD, and a
-  creator matching bonus in `match_users` (`0005_creator_matching.sql`, adds `is_creator`, requires
-  0004 applied first — run in that order). See phase-5-creators.md.
-  - **Not blocking anything existing** (unlike Phase 4.1b) — these are new tables/routes nothing else
-    depends on, so there's no rush the way there was last time.
+- **Phase 5 (Creators Space) — DONE, both migrations applied and verified 2026-08-30** (via Supabase
+  MCP: `creator_profiles`/`works` tables exist; `match_users` return type includes `is_creator`).
+  `/creators` directory + Profile "Creator" tab + works CRUD + creator matching bonus, all live.
+  See phase-5-creators.md.
 - **Phase 6 — not started.**
 - **Also added this session, outside the phase plan**: minimal GitHub Actions CI (`.github/workflows/ci.yml`,
   runs `npm ci --legacy-peer-deps && npm run build` on push/PR to `main`) and a multi-stage `Dockerfile`
@@ -124,6 +122,6 @@ git status              # .env.local NEVER staged
 - [x] P3: match_users RPC live (client done 2026-08-28, migration applied + verified 2026-08-30)
 - [x] P4: inclusive taxonomy ✅ + 4-step onboarding ✅ + contrast fixed ✅ + migration applied &
       verified ✅ (done 2026-08-30); keyboard-only pass + reduced-motion still open (not blocking)
-- [x] P5: /creators directory ✅ + works CRUD ✅ + creator match bonus ✅ (code done 2026-08-30,
-      migrations 0004/0005 NOT yet applied - run in that order)
+- [x] P5: /creators directory ✅ + works CRUD ✅ + creator match bonus ✅ + migrations applied &
+      verified ✅ (done 2026-08-30)
 - [ ] P6: realtime chat on Supabase; Stream fully removed

@@ -47,3 +47,9 @@ after: `execute_sql` confirmed all 7 seeded communities exist and are correctly 
 pre-existing, unrelated platform warnings (function search_path hardening, leaked-password-protection
 toggle, a Postgres patch upgrade), nothing new from this change. Local mirror of the applied fix:
 `0007_fix_community_members_rls_recursion.sql` (does not need to be re-run).
+
+**2026-08-30** — User asked whether 0004/0005 had been run; unclear from context, so checked directly
+via MCP rather than guessing. `list_tables`: `creator_profiles` and `works` both exist (0 rows,
+tables present — confirms 0004). `select pg_get_function_result(oid) ... where proname='match_users'`:
+return type includes `is_creator boolean` (confirms 0005 — that column only exists after 0005's
+drop+recreate). Both migrations are live. Read-only checks only, no mutation.
