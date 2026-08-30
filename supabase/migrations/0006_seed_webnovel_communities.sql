@@ -1,5 +1,6 @@
--- Seed: communities for popular web novels, so the "Web Fiction / Serials"
--- reading type (added in Phase 4.1a) has real content behind it on day one.
+-- Fixes a missing schema constraint (see below), then seeds communities
+-- for popular web novels so the "Web Fiction / Serials" reading type
+-- (added in Phase 4.1a) has real content behind it on day one.
 -- Titles/genres sourced from Royal Road's own trending page + well-known
 -- long-running serials (Beware of Chicken, Defiance of the Fall, He Who
 -- Fights with Monsters, Millennial Mage - all widely recognized in the
@@ -10,7 +11,22 @@
 -- created_by is null (platform-curated, not any one user's community) -
 -- the column is nullable, this is a supported case, not a workaround.
 -- Run once against the live project (SQL Editor). Idempotent - safe to
--- re-run, `communities.name` is already unique.
+-- re-run.
+--
+-- Found while writing this: the ON CONFLICT (name) below errored with
+-- 42P10 "no unique or exclusion constraint matching" - the live
+-- `communities` table doesn't actually have the `unique` constraint on
+-- `name` that 0001_init.sql documents (`name text unique not null`).
+-- This isn't just this file's problem: CreateCommunityModal.jsx already
+-- depends on that exact constraint existing - it string-matches Postgres's
+-- error `duplicate key value violates unique constraint "communities_name_key"`
+-- to show "A community with this name already exists." Without the
+-- constraint, that check has been silently dead code - duplicate-named
+-- communities can currently be created with no error. Fixing at the
+-- source (adding the constraint) rather than working around it here,
+-- since the app already assumed it was there.
+alter table public.communities
+  add constraint communities_name_key unique (name);
 
 insert into public.communities (name, description, genre, created_by) values
   (
