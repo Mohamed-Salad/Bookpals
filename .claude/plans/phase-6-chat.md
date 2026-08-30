@@ -1,41 +1,39 @@
 # Phase 6 — Chat: Stream → Supabase Realtime
 
-**Status: not started.** See [00-STATUS.md](00-STATUS.md) for repo traps and the validation gate.
-Chat is intentionally dead until this phase — do not "fix" Stream connection errors earlier.
+**Status: DONE.** All three tasks complete 2026-08-30. See [00-STATUS.md](00-STATUS.md) for repo
+traps and the validation gate.
 
-**Migration numbering note**: `0006` and `0007` went to out-of-band fixes/seeds unrelated to this
-phase (`0006_seed_webnovel_communities.sql` - popular web-novel communities + a missing
-`communities.name` unique constraint; `0007_fix_community_members_rls_recursion.sql` - a live RLS bug
-that broke community browsing app-wide, applied directly via Supabase MCP, both 2026-08-30). Chat's
-schema migration is `0008_chat.sql`, not `0006_chat.sql` as originally numbered below.
+### Task 6.1: Schema — DONE, applied via MCP
+`supabase/migrations/0008_chat.sql`: `conversations`/`conversation_members`/`messages`, RLS via a
+`security definer` `is_conversation_member()` helper — deliberately avoiding the exact RLS
+self-recursion pattern found and fixed earlier the same day on `community_members` (a naive
+membership-check subquery placed directly on the table it gates recurses). Applied directly to the
+live project via Supabase MCP; verified live (`list_tables` — all three tables present, RLS enabled).
 
-### Task 6.1: Schema
-- **Action**: `supabase/migrations/0008_chat.sql`:
-  `conversations(id uuid pk default gen_random_uuid(), is_group boolean default false, name text, created_by uuid references profiles, created_at timestamptz default now())`;
-  `conversation_members(conversation_id uuid references conversations on delete cascade, user_id uuid references profiles on delete cascade, joined_at timestamptz default now(), primary key(conversation_id, user_id))`;
-  `messages(id uuid pk default gen_random_uuid(), conversation_id uuid references conversations on delete cascade, sender_id uuid references profiles, content text not null, created_at timestamptz default now())`.
-  RLS: members-only read/write (exists check on conversation_members).
-  `alter publication supabase_realtime add table messages;`
-- **Validate**: SQL clean; RLS blocks non-members (test with 2 accounts in SQL editor).
+### Task 6.2: Client — DONE
+`src/services/chatService.js`: `getOrCreateDirectConversation`, `createGroupConversation`,
+`getUserConversations`, `sendMessage`, and a `useMessages(conversationId)` hook (initial fetch +
+`postgres_changes` INSERT subscription). Rebuilt `pages/ChatRooms.jsx` (two-pane: conversation list +
+active thread) and `components/chat/Conversation.jsx` (message list + composer) on Phase 2 primitives.
+Simplified `/chat`'s route to a single `path="/chat/:channelId?"` — the old nested-route+`Outlet`
+structure in `App.jsx` was never actually wired up (`ChatPage` didn't render `Outlet`), so `ChatRooms`
+now just reads the param directly, matching what the code already effectively did. Removed the
+`ChatProvider` wrapper entirely — Supabase Realtime doesn't need Stream's persistent global-connection
+object; each `useMessages` call owns its own subscription lifecycle.
 
-### Task 6.2: Client
-- **Action**: new `src/services/chatService.js`: getOrCreateDirectConversation(a,b), sendMessage,
-  useMessages(conversationId) hook subscribing via
-  `supabase.channel(...).on('postgres_changes', {event:'INSERT', table:'messages', filter:`conversation_id=eq.${id}`})`.
-  Rebuild `pages/ChatRooms.jsx` + `components/chat/Conversation.jsx` on the Phase 2 primitives
-  (conversation list + message thread + composer). Group chat = same tables with is_group, creation
-  from `CreateGroupChat.jsx` (rewire, keep UI).
-- **Validate**: two browsers, two accounts, live message delivery both ways; group chat with 3 accounts.
-
-### Task 6.3: Excise Stream
-- **Action**: `npm rm stream-chat stream-chat-react`; delete `services/streamClient.js`,
-  `services/tokenGeneration.js`, token-server script from `package.json`, `ChatContext` stream logic
-  (replace with conversation state or delete if redundant); remove Stream CSS import; grep `stream`
-  case-insensitive across src to catch stragglers (note: `LoadingIndicator` from stream-chat-react is
-  imported in CommunityView.jsx, CommentSection.jsx, AND RecommendedCommunities.jsx — the third one
-  found while building Phase 3, missed in this task's original scope — replace all three with
-  ui/Skeleton). Update
-  `acceptFriendRequest` in database.js: replace Stream channel creation with
-  `getOrCreateDirectConversation`.
-- **Validate**: build green; bundle main chunk shrinks (was ~1.96MB); all chat + friend-accept flows
-  work; no `:3001` requests anywhere.
+### Task 6.3: Excise Stream — DONE
+`npm rm stream-chat stream-chat-react @stream-io/stream-chat-css express cors dotenv` (the last three
+were only used by the now-deleted token server). Deleted `ChatContext.jsx`, `UnifiedSidebar.jsx`
+(confirmed only ever rendered by the old chat page), `streamClient.js`, `tokenGeneration.js`,
+`stream-chat-custom.css`, and the `token-server` package.json script. Rewired real callers:
+`UserCard.jsx`'s "Message" button, `CreateGroupChat.jsx`, and `acceptFriendRequest` in `database.js`
+(now starts a direct conversation instead of a Stream channel). Dropped `getUserChatChannels` (dead,
+no callers) and `removeFriend`'s Stream cleanup block (no Supabase equivalent added — whether
+unfriending should delete conversation history is a separate product decision, not assumed here).
+Replaced the `LoadingIndicator` (stream-chat-react) imports in `CommentSection.jsx` and
+`RecommendedCommunities.jsx` with `ui/Skeleton` — grepping found no real import in `CommunityView.jsx`
+despite the plan's original note; that one was a stale comment, not code.
+- **Result**: main bundle chunk 2,149KB → 813KB, 2882 → 1838 modules. Build green; landing page + an
+  unauthenticated `/chat` visit (redirects to `/login` correctly) smoke-tested clean via Playwright,
+  zero console errors. **Not yet done**: a real logged-in two-account test of live message delivery
+  (this session has no Supabase login) — worth doing before calling the feature fully proven.

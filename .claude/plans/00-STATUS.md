@@ -53,7 +53,12 @@ logged there (read-only checks included). Check it before assuming any migration
   MCP: `creator_profiles`/`works` tables exist; `match_users` return type includes `is_creator`).
   `/creators` directory + Profile "Creator" tab + works CRUD + creator matching bonus, all live.
   See phase-5-creators.md.
-- **Phase 6 — not started.**
+- **Phase 6 — DONE 2026-08-30.** Chat schema applied live via Supabase MCP (`is_conversation_member()`
+  security-definer helper, deliberately avoiding the RLS recursion pattern found on `community_members`
+  the same day). Client rewritten on Supabase Realtime (`chatService.js`, rebuilt `ChatRooms.jsx`/
+  `Conversation.jsx`). Stream fully excised: 6 packages removed, 5 files deleted, all real callers
+  rewired. Main bundle chunk 2,149KB → 813KB. See phase-6-chat.md. **Not yet done**: a real two-account
+  logged-in test of live message delivery (this session has no Supabase login).
 - **Also added this session, outside the phase plan**: minimal GitHub Actions CI (`.github/workflows/ci.yml`,
   runs `npm ci --legacy-peer-deps && npm run build` on push/PR to `main`) and a multi-stage `Dockerfile`
   + `nginx.conf` (builds the Vite app, serves via nginx, ~97MB image, verified working locally).
@@ -73,11 +78,11 @@ A fresh session WILL get these wrong without this list:
    preserve them (or change code + SQL together).
 3. **Storage bucket `dicussion-posts` is misspelled on purpose** — the code spells it that way
    (`database.js` createPost). Keep code and bucket in sync; if you fix the spelling, fix BOTH.
-4. **Env**: real keys are in `.env.local` (gitignored, never commit, never print). `.env` has
-   placeholders. `VITE_STREAM_API_KEY=placeholder` is intentional (chat deferred to Phase 6).
-5. **Chat is intentionally dead.** Console errors `:3001/get-stream-token ERR_CONNECTION_REFUSED` are
-   expected until Phase 6 replaces Stream with Supabase Realtime. Do not "fix" them earlier; do not
-   run the token server.
+4. **Env**: real keys are in `.env.local` (gitignored, never commit, never print). `VITE_STREAM_API_KEY`
+   in `.env`/`.env.example` is now dead (Stream removed in Phase 6) — harmless leftover, not cleaned up.
+5. **Chat is live** (Phase 6, 2026-08-30) — Supabase Realtime, not Stream. If you see a stray reference
+   to Stream, the token server, `:3001`, or `ERR_CONNECTION_REFUSED` chat errors in a stale doc or your
+   own memory, it's describing the pre-Phase-6 state; none of that exists anymore.
 6. **Validation gate for every task**: `npm run build` must be green (ignore Browserslist warnings).
    Runtime check: `npm run dev`, open the app.
 7. `.claude/settings.local.json` sets `ECC_GATEGUARD=off` — leave it.
@@ -94,11 +99,23 @@ A fresh session WILL get these wrong without this list:
    fixed in `0006_seed_webnovel_communities.sql`. If something references a constraint/column name and
    behaves oddly, verify against the live DB before trusting the migration files describe it exactly.
 9. **`npm ci` (strict) fails on a peer-dependency conflict that `npm install` silently tolerates.**
-   `@emoji-mart/react@1.1.1` (pulled in via `stream-chat-react`, dead code until Phase 6) only
-   declares peer support for React ≤18; React 19 is installed and works fine at runtime, but `npm ci`
-   validates peer ranges strictly regardless of what the lockfile already resolved. Always
-   `npm ci --legacy-peer-deps` (CI and Dockerfile already do this) — plain `npm ci` will fail. Real
-   fix is Phase 6 removing `stream-chat-react` entirely.
+   `@emoji-mart/react@1.1.1` only declares peer support for React ≤18; React 19 is installed and works
+   fine at runtime, but `npm ci` validates peer ranges strictly regardless of what the lockfile already
+   resolved. Always `npm ci --legacy-peer-deps` (CI and Dockerfile already do this) — plain `npm ci`
+   will fail. **Updated 2026-08-30**: this used to be caused by `stream-chat-react` pulling in
+   `@emoji-mart/react` as a peer-optional dep — Phase 6 removed `stream-chat-react` entirely, but
+   `@emoji-mart/react`/`@emoji-mart/data`/`emoji-mart` are still real direct dependencies (presumably
+   an emoji picker somewhere unrelated to chat) with the same stale peer range, so the flag is still
+   required. Re-verified by testing plain `npm ci` after the Stream removal — still fails, same
+   `@emoji-mart/react` culprit, different reason.
+10. **RLS self-recursion trap**: a policy on table X whose `USING`/`WITH CHECK` clause subqueries X
+    itself (even indirectly, via another table's policy that subqueries back into X) causes Postgres
+    error `42P17`. Found live on `community_members` 2026-08-30 (a stray policy from an old,
+    never-cleaned-up migration attempt — see DB-AUDIT-LOG.md) and fixed; Phase 6's chat schema was
+    designed from the start with a `security definer` helper function specifically to avoid repeating
+    it. If you add a new membership-style table (row visibility depends on "is the current user also
+    a member of this row's group"), use that pattern, not a direct self-referential subquery in the
+    policy.
 
 ## Validation (every phase)
 ```bash
@@ -112,7 +129,7 @@ git status              # .env.local NEVER staged
 |---|---|---|
 | React 19 breaks a lib (framer-motion, toastify) | MED | upgrade one dep per commit; pin last-good on failure and note it |
 | Tailwind 4 class drift | MED | full-route visual pass; Phase 2 restyles anyway |
-| RLS recursion/perf in chat policies | MED | use exists-subquery pattern from 0001; test with 2 accounts before UI work |
+| RLS recursion in membership tables | LOW (was MED) | materialized on `community_members` 2026-08-30, fixed; chat's schema uses a `security definer` helper specifically to avoid repeating it — see repo trap #10 |
 | Plan drifts from actual `git log` | MED | update this status file at the end of every session, before ending it |
 | Data loss | LOW | DB near-empty; migrations are additive; never run destructive SQL without explicit approval from Mr Salad |
 
@@ -124,4 +141,9 @@ git status              # .env.local NEVER staged
       verified ✅ (done 2026-08-30); keyboard-only pass + reduced-motion still open (not blocking)
 - [x] P5: /creators directory ✅ + works CRUD ✅ + creator match bonus ✅ + migrations applied &
       verified ✅ (done 2026-08-30)
-- [ ] P6: realtime chat on Supabase; Stream fully removed
+- [x] P6: realtime chat on Supabase ✅ + Stream fully removed ✅ (done 2026-08-30; two-account
+      logged-in message test still open)
+
+**All 6 phases of the original plan are now done.** Remaining open items, none blocking: a real
+logged-in pass across Phases 3/4/5/6 (this session never had a Supabase login), `useReducedMotion`
+wrapping (Phase 4.3), and the two small hardening notes under Phase 3/5 in their respective files.
