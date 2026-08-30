@@ -31,6 +31,13 @@ confirms all four new columns exist; empty result is RLS correctly blocking anon
 error. No mutation performed by this session. Phase 4.1b migration is now live; /interests and
 /onboarding are unblocked.
 
+**2026-08-30** — Applied Phase 6.1's chat schema directly via MCP `apply_migration` (name:
+`chat_schema`): `conversations`/`conversation_members`/`messages` tables, RLS, and a
+`security definer` `is_conversation_member()` helper (deliberately avoiding the exact self-recursion
+pattern just fixed on `community_members` — see the entry above and 0007). Verified after via
+`list_tables`: all three tables present, RLS enabled, 0 rows (expected, nothing seeded). Local mirror:
+`0008_chat.sql` (does not need to be re-run).
+
 **2026-08-30** — Supabase MCP became available mid-session (confirmed via `list_projects`; project
 `BookPals` = `nfhkdwwydzigdojikzeu`). First live-write action performed directly by this session
 rather than handed to the user: user ran the fixed `0006_seed_webnovel_communities.sql` successfully,
