@@ -89,6 +89,12 @@ A fresh session WILL get these wrong without this list:
    design already torn out) and was deleted (zip backup at `Reference/docs-archive-2026-08-25.zip`).
    The Volere requirement `.txt` files directly under `Reference/` are the only genuine signal and
    are already captured in the "Original goals" section of the project's root `CLAUDE.md`.
+9a. **`0001_init.sql` doesn't perfectly match the live schema** — it says "reverse-engineered from
+   src/services/*.js," i.e. reconstructed after the fact, not the source of truth. Found 2026-08-30:
+   the live `communities` table was missing the `unique` constraint on `name` that both the doc and
+   `CreateCommunityModal.jsx` (string-matches the Postgres error by constraint name) assumed existed —
+   fixed in `0006_seed_webnovel_communities.sql`. If something references a constraint/column name and
+   behaves oddly, verify against the live DB before trusting the migration files describe it exactly.
 9. **`npm ci` (strict) fails on a peer-dependency conflict that `npm install` silently tolerates.**
    `@emoji-mart/react@1.1.1` (pulled in via `stream-chat-react`, dead code until Phase 6) only
    declares peer support for React ≤18; React 19 is installed and works fine at runtime, but `npm ci`
