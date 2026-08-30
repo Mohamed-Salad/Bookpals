@@ -1,5 +1,9 @@
 # Phase 3 — Matching Engine
 
+**Note**: `match_users` (defined here by `0002_matching.sql`) was later modified by Phase 5's
+`0005_creator_matching.sql` — dropped and recreated with an added `is_creator` column and a creator
+bonus term. See phase-5-creators.md Task 5.3. This file describes the original version.
+
 **Status: DONE.** Migration applied by Mr Salad 2026-08-30 via the Supabase SQL Editor; verified live
 by this session with a read-only RPC probe (see DB-AUDIT-LOG.md). See [00-STATUS.md](00-STATUS.md)
 for repo traps, the validation gate, and a minor non-urgent hardening note (anon-role EXECUTE grant).
