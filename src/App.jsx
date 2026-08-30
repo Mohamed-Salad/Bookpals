@@ -26,9 +26,7 @@ import AuthCallback from "./context/AuthCallBack";
 import Search from "./components/Search";
 import Discover from "./pages/Discover";
 import { NotificationProvider } from "./context/NotificationContext";
-import { ChatProvider } from "./context/ChatContext";
 import ChatPage from "./pages/ChatRooms";
-import Conversation from "./components/chat/Conversation";
 
 // Create NotificationContext
 export const NotificationContext = createContext();
@@ -165,15 +163,13 @@ const AppContent = () => {
                 }
               />
               <Route
-                path="/chat"
+                path="/chat/:channelId?"
                 element={
                   <ProtectedRoute>
                     <ChatPage />
                   </ProtectedRoute>
                 }
-              >
-                <Route path=":channelId" element={<Conversation />} />
-              </Route>
+              />
               <Route
                 path="/create-group"
                 element={
@@ -204,11 +200,9 @@ const App = () => {
     <ThemeProvider>
       <AuthProvider>
         <NotificationProvider>
-          <ChatProvider>
-            <Router>
-              <AppContent />
-            </Router>
-          </ChatProvider>
+          <Router>
+            <AppContent />
+          </Router>
         </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
