@@ -11,7 +11,9 @@ export default function Conversation({ conversation }) {
   const { messages, loading } = useMessages(conversation?.id);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
   const bottomRef = useRef(null);
+  const MAX_LENGTH = 4000; // matches messages_content_length in the DB
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,13 +29,16 @@ export default function Conversation({ conversation }) {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!text.trim() || sending) return;
+    const trimmed = text.trim();
+    if (!trimmed || sending) return;
     setSending(true);
+    setError(null);
     try {
-      await sendMessage(conversation.id, user.id, text.trim());
+      await sendMessage(conversation.id, user.id, trimmed);
       setText("");
-    } catch (error) {
-      console.error("[Conversation] Failed to send message:", error);
+    } catch (err) {
+      console.error("[Conversation] Failed to send message:", err);
+      setError("Couldn't send that message. Try again.");
     } finally {
       setSending(false);
     }
@@ -91,16 +96,25 @@ export default function Conversation({ conversation }) {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-4 border-t border-ink/10 flex gap-2">
-        <Input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message…"
-          className="flex-1"
-        />
-        <Button type="submit" disabled={sending || !text.trim()}>
-          Send
-        </Button>
+      <form onSubmit={handleSend} className="p-4 border-t border-ink/10">
+        {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
+        <div className="flex gap-2">
+          <Input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type a message…"
+            maxLength={MAX_LENGTH}
+            className="flex-1"
+          />
+          <Button type="submit" disabled={sending || !text.trim()}>
+            Send
+          </Button>
+        </div>
+        {text.length > MAX_LENGTH * 0.9 && (
+          <p className="text-xs text-ink-muted mt-1 text-right">
+            {text.length}/{MAX_LENGTH}
+          </p>
+        )}
       </form>
     </div>
   );

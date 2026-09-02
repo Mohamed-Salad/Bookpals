@@ -80,7 +80,7 @@ const AppContent = () => {
     <div className="min-h-screen bg-paper text-ink">
       {!isChatPage && <Navbar />}
 
-      <div className="relative flex pt-14">
+      <div className={`relative flex ${isChatPage ? "" : "pt-14"}`}>
         {/* Left Sidebar container */}
         {showSidebar && (
           <div
@@ -98,7 +98,7 @@ const AppContent = () => {
             showSidebar ? (isSidebarExpanded ? "md:ml-72" : "md:ml-20") : "ml-0"
           }`}
         >
-          <main className="p-4 md:p-6">
+          <main className={isChatPage ? "" : "p-4 md:p-6"}>
             <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<LandingPage />} />

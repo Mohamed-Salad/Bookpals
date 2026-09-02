@@ -60,3 +60,12 @@ via MCP rather than guessing. `list_tables`: `creator_profiles` and `works` both
 tables present — confirms 0004). `select pg_get_function_result(oid) ... where proname='match_users'`:
 return type includes `is_creator boolean` (confirms 0005 — that column only exists after 0005's
 drop+recreate). Both migrations are live. Read-only checks only, no mutation.
+
+**2026-09-02** — User asked for "secure text controls" on chat. Audited the composer/render path
+first: confirmed no `dangerouslySetInnerHTML` anywhere in src/ (XSS-safe by default via React's JSX
+escaping). Found two real gaps: no length cap and no server-side guard against empty/whitespace-only
+content — RLS restricts *who* can write messages but not *what*. Applied via MCP `apply_migration`
+(name: `message_content_constraints`): `messages_content_not_blank`
+(`char_length(trim(content)) > 0`) and `messages_content_length` (`char_length(content) <= 4000`).
+Client (`Conversation.jsx`) updated to match: `maxLength={4000}` on the input, a counter past 90%,
+and a friendly error message on send failure. Local mirror: `0009_message_content_constraints.sql`.
