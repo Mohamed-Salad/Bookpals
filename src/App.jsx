@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { createContext, lazy, Suspense, useState, useContext, useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/layout/Navbar";
@@ -214,15 +215,17 @@ const AppContent = () => {
 // Main App component
 const App = () => {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <NotificationProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </NotificationProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </NotificationProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </MotionConfig>
   );
 };
 

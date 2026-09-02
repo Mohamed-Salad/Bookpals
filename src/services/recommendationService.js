@@ -9,7 +9,6 @@ export function useMatches(userId, limit = 20) {
     queryKey: ["matches", userId, limit],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("match_users", {
-        p_user_id: userId,
         p_limit: limit,
       });
       if (error) throw error;

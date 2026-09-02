@@ -69,3 +69,21 @@ content — RLS restricts *who* can write messages but not *what*. Applied via M
 (`char_length(trim(content)) > 0`) and `messages_content_length` (`char_length(content) <= 4000`).
 Client (`Conversation.jsx`) updated to match: `maxLength={4000}` on the input, a counter past 90%,
 and a friendly error message on send failure. Local mirror: `0009_message_content_constraints.sql`.
+
+**2026-09-02** — Separately, investigated a Cloudflare 525 the user hit while messaging someone from
+Discover. Ruled out: project status is `ACTIVE_HEALTHY` (`list_projects`), and a direct `curl` to the
+project's REST endpoint returned `401` (normal — reachable, edge/origin handshake fine). No leftover
+references to the old Stream/Express chat stack in the message-send path either. Concluded: transient
+edge blip, not reproducible, nothing to fix in code.
+
+While reviewing that path, revisited `match_users` (flagged earlier as a minor hardening item):
+`security invoker` + `grant execute ... to authenticated` on `match_users(p_user_id uuid, p_limit int)`
+meant any authenticated caller could pass an arbitrary `p_user_id` and get results computed "as" that
+user. Checked `user_preferences`'s RLS first — `"user_prefs read" ... using (true)` already lets any
+authenticated user read every row directly, so this wasn't a new leak beyond what's already granted at
+the table level. Still bad practice (an RPC that lets you impersonate another user's identity, and
+would silently reopen a real hole if that table policy is ever tightened). Applied via MCP
+`apply_migration` (name: `match_users_auth_uid`): dropped the 2-arg `match_users(uuid, int)` overload,
+recreated as `match_users(p_limit int default 20)` deriving identity from `auth.uid()` internally
+instead of a client-supplied uuid. Updated `recommendationService.js` to stop passing `p_user_id`.
+Local mirror: `0010_match_users_auth_uid.sql`.
