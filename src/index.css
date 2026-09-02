@@ -7,17 +7,6 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Legacy tokens - still referenced by pages not yet swept onto the new
-     palette in Phase 2 Task 2.2. Remove once every page/component below
-     has been migrated off primary/secondary/dark. */
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-secondary: #8b5cf6;
-  --color-secondary-dark: #7c3aed;
-  --color-dark: #111827;
-  --color-dark-light: #1f2937;
-  --color-dark-lighter: #374151;
-
   --blur-xs: 2px;
 
   /* New design-system tokens - a warm literary palette instead of the old
@@ -51,34 +40,6 @@
   body {
     @apply bg-paper text-ink antialiased;
     font-family: var(--font-sans);
-  }
-}
-
-/* v4 requires custom classes composed via @apply elsewhere to be declared as
-   @utility rather than plain @layer components rules. */
-@utility btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out;
-}
-
-@layer components {
-  .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-dark;
-  }
-
-  .btn-secondary {
-    @apply btn bg-secondary text-white hover:bg-secondary-dark;
-  }
-
-  .btn-outline {
-    @apply btn border-2 border-primary text-primary hover:bg-primary hover:text-white;
-  }
-
-  .input {
-    @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
-  }
-
-  .card {
-    @apply bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-200;
   }
 }
 

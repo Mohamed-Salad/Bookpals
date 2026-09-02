@@ -84,12 +84,12 @@ export function AuthProvider({ children }) {
 
   if (connectionError) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-paper">
         <div className="text-center p-4">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">
+          <h2 className="text-xl font-semibold text-red-500 mb-2">
             Connection Error
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-ink-muted">
             Unable to connect to the server. Please try again later.
           </p>
         </div>
