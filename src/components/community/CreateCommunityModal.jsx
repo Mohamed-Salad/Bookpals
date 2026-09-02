@@ -6,6 +6,8 @@ import {
 } from "../../services/database";
 import { Dialog } from "@headlessui/react";
 import { GENRES } from "../../utils/questions";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
 
 export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
   const { user } = useAuth();
@@ -103,29 +105,24 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
-        <Dialog.Panel className="mx-auto max-w-lg rounded-lg bg-white dark:bg-gray-800 p-6 w-full shadow-xl my-8">
-          <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        <Dialog.Panel className="mx-auto max-w-lg rounded-lg bg-surface p-6 w-full shadow-xl my-8">
+          <Dialog.Title className="font-display text-xl font-semibold text-ink mb-4">
             Create New Community
           </Dialog.Title>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Community Name *
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter community name"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+            <Input
+              label="Community Name *"
+              type="text"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter community name"
+            />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-ink mb-1">
                 Description *
               </label>
               <textarea
@@ -135,19 +132,19 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                 onChange={handleInputChange}
                 placeholder="What is this community about?"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-ink/15 rounded-lg bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Select Genres * (Choose at least one)
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 max-h-48 overflow-y-auto p-2 border border-gray-300 dark:border-gray-600 rounded-md">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 max-h-48 overflow-y-auto p-2 border border-ink/15 rounded-lg">
                 {GENRES.map((genre) => (
                   <label
                     key={genre}
-                    className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                    className="flex items-center gap-2 text-sm text-ink-muted cursor-pointer"
                   >
                     <input
                       type="checkbox"
@@ -155,7 +152,7 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                       value={genre}
                       checked={formData.genre.includes(genre)}
                       onChange={handleInputChange}
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:bg-gray-600 dark:border-gray-500"
+                      className="h-4 w-4 rounded border-ink/30 text-accent-dark focus:ring-accent"
                     />
                     <span>{genre}</span>
                   </label>
@@ -167,7 +164,7 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-ink mb-1">
                 Community Rules
               </label>
               <textarea
@@ -176,20 +173,20 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                 onChange={handleInputChange}
                 placeholder="Optional: Set guidelines for your community (e.g., Be respectful, No spoilers)"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-ink/15 rounded-lg bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-accent"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-ink-muted mt-1">
                 Enter rules as plain text. Formatting will be applied on the
                 community page.
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Community Banner (Optional)
               </label>
               <div className="mt-1 flex items-center">
-                <label className="cursor-pointer flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-300">
+                <label className="cursor-pointer flex items-center justify-center px-4 py-2 border border-ink/15 rounded-lg hover:bg-surface-raised text-sm text-ink-muted">
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -198,7 +195,7 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-2 text-gray-400"
+                    className="h-4 w-4 mr-2 text-ink-muted"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -213,13 +210,13 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                   {selectedFile ? "Change Banner" : "Upload Banner"}
                 </label>
                 {selectedFile && (
-                  <span className="ml-3 text-sm text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                  <span className="ml-3 text-sm text-ink-muted truncate max-w-[150px]">
                     {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)}{" "}
                     KB)
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-ink-muted mt-1">
                 Recommended format: JPG, PNG, GIF. Max size: 2MB.
               </p>
             </div>
@@ -231,63 +228,26 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }) {
                 id="is_private"
                 checked={formData.is_private}
                 onChange={handleInputChange}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:bg-gray-600 dark:border-gray-500"
+                className="h-4 w-4 rounded border-ink/30 text-accent-dark focus:ring-accent"
               />
-              <label
-                htmlFor="is_private"
-                className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
-              >
+              <label htmlFor="is_private" className="ml-2 block text-sm text-ink">
                 Make this a Private Community (members must be approved)
               </label>
             </div>
 
             {error && !error.includes("Please select at least one genre.") && (
-              <div className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mt-4">
+              <div className="text-red-500 text-sm bg-red-500/10 p-3 rounded-lg mt-4">
                 Error: {error}
               </div>
             )}
 
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg"
-              >
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="secondary" onClick={onClose}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Creating...
-                  </>
-                ) : (
-                  "Create Community"
-                )}
-              </button>
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating…" : "Create Community"}
+              </Button>
             </div>
           </form>
         </Dialog.Panel>

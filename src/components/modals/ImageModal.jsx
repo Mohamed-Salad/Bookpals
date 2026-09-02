@@ -29,7 +29,7 @@ const ImageModal = ({ imageUrl, onClose }) => {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-lg shadow-xl overflow-hidden"
+          className="relative max-w-4xl max-h-[90vh] bg-surface rounded-lg shadow-xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           <img

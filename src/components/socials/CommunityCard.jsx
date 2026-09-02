@@ -3,6 +3,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { joinCommunity, leaveCommunity } from "../../services/database";
+import { Card } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+import { Button } from "../ui/Button";
 
 const CommunityCard = ({ community, userMemberships = [] }) => {
   const navigate = useNavigate();
@@ -58,12 +61,12 @@ const CommunityCard = ({ community, userMemberships = [] }) => {
     : [];
 
   return (
-    <div
+    <Card
       onClick={handleCardClick}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-200 ease-in-out group cursor-pointer"
+      className="p-0 overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ease-in-out group cursor-pointer"
     >
       {/* Banner Area */}
-      <div className="h-32 w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+      <div className="h-32 w-full bg-surface-raised flex items-center justify-center overflow-hidden">
         {community.banner_url ? (
           <img
             src={community.banner_url}
@@ -74,10 +77,9 @@ const CommunityCard = ({ community, userMemberships = [] }) => {
             }}
           />
         ) : (
-          /* Placeholder SVG Icon */
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 text-gray-400 dark:text-gray-500"
+            className="h-10 w-10 text-ink-muted"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -97,74 +99,51 @@ const CommunityCard = ({ community, userMemberships = [] }) => {
         <div className="flex justify-between items-start mb-3">
           {/* Name & Description */}
           <div className="flex-1 mr-3">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white truncate group-hover:text-primary transition-colors">
+            <h3 className="text-lg font-bold text-ink truncate group-hover:text-accent-dark transition-colors">
               {community.name}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+            <p className="text-sm text-ink-muted mt-1 line-clamp-2">
               {community.description}
             </p>
           </div>
           {/* Join Button */}
-          <button
+          <Button
             onClick={handleJoinClick}
             disabled={loading}
-            className={`shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 ease-in-out ${
-              isJoined
-                ? "bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                : "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md"
-            } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            variant={isJoined ? "secondary" : "primary"}
+            className="shrink-0 px-3.5 py-1.5 text-xs"
           >
-            {loading ? "..." : isJoined ? "Joined" : "Join"}
-          </button>
+            {loading ? "…" : isJoined ? "Joined" : "Join"}
+          </Button>
         </div>
 
         {/* Genres */}
         {communityGenres.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3 mb-3">
-            {communityGenres.slice(0, 4).map(
-              (
-                g // Show max 4 genres initially
-              ) => (
-                <span
-                  key={g}
-                  className="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 rounded-full font-medium whitespace-nowrap"
-                >
-                  {g}
-                </span>
-              )
-            )}
+            {communityGenres.slice(0, 4).map((g) => (
+              <Badge key={g} variant="accent">
+                {g}
+              </Badge>
+            ))}
             {communityGenres.length > 4 && (
-              <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap">
-                +{communityGenres.length - 4} more
-              </span>
+              <Badge>+{communityGenres.length - 4} more</Badge>
             )}
           </div>
         )}
 
         {/* Footer Metadata */}
-        <div className="flex items-center justify-between mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center justify-between mt-4 border-t border-ink/10 pt-3">
+          <span className="text-xs text-ink-muted">
             {community.member_count || 0} members
           </span>
-          {/* Example: Conditionally show category if available */}
-          {/* {community.category && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Category: {community.category}
-          </span>
-          )} */}
-          {community.is_private && (
-            <span className="inline-block px-2 py-0.5 text-[11px] font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/40 rounded-full">
-              Private
-            </span>
-          )}
+          {community.is_private && <Badge>Private</Badge>}
 
-          {/* Enter Button - Added */}
           <button
             onClick={(e) => {
               e.stopPropagation(); // Prevent card click event
               handleCardClick(); // Navigate using the existing function
             }}
-            className="ml-auto pl-3 pr-2 py-1 text-xs font-medium text-primary dark:text-primary-light hover:bg-primary/10 dark:hover:bg-primary/20 rounded-md transition-colors"
+            className="ml-auto pl-3 pr-2 py-1 text-xs font-medium text-accent-dark hover:bg-accent/10 rounded-md transition-colors"
           >
             Enter
             <svg
@@ -184,7 +163,7 @@ const CommunityCard = ({ community, userMemberships = [] }) => {
           </button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
