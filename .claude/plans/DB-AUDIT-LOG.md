@@ -87,3 +87,24 @@ would silently reopen a real hole if that table policy is ever tightened). Appli
 recreated as `match_users(p_limit int default 20)` deriving identity from `auth.uid()` internally
 instead of a client-supplied uuid. Updated `recommendationService.js` to stop passing `p_user_id`.
 Local mirror: `0010_match_users_auth_uid.sql`.
+
+**2026-09-03** — User reported the "Cloudflare 525" from the 2026-09-02 entry was still happening on
+Discover. Re-read the actual screenshot text this time instead of pattern-matching on "525": it's
+`client:525`, a bundled-file line number in the console, not an HTTP status - the real error is
+Postgres `42703 column user_connections.id does not exist`, thrown repeatedly by `getFriendCounts`
+(one call per UserCard rendered on Discover). Queried live schema directly
+(`information_schema.columns` + `pg_constraint` for `public.user_connections`, read-only): the live
+table has no `id` column at all - just `user_id, connected_user_id, status, created_at, updated_at`,
+with a composite `PRIMARY KEY (user_id, connected_user_id)` and a `valid_status` check constraint
+(`pending|accepted|rejected|blocked`). `0001_init.sql` declares this table with `id uuid primary key`
+and a separate `unique(user_id, connected_user_id)` instead - that table predates the migration
+(created before this migration system existed), so `create table if not exists` silently no-op'd
+against it and the file's stated schema was never actually live. Confirmed via grep that every other
+`user_connections` query in `database.js` already uses `user_id`/`connected_user_id`/`status`, never
+`id` - so fixed the one wrong caller (`getFriendCounts`) to use PostgREST's count-only mode
+(`select("*", { count: "exact", head: true })`) instead of selecting a nonexistent column, rather than
+adding an unused `id` column to match the stale migration file. No live schema change made this time -
+read-only diagnosis, code-only fix. Flagged to the user (not yet fixed): `0001_init.sql`'s
+`user_connections` definition still doesn't match live reality, so a from-scratch rebuild of this repo's
+migrations (e.g. for the planned Docker/CI local-dev setup) would produce a table shaped differently
+from production.

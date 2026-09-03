@@ -399,27 +399,30 @@ export const getFriendshipStatus = async (userId, otherUserId) => {
 // Get friend counts
 export const getFriendCounts = async (userId) => {
   try {
-    // Count accepted connections
-    const { data, error } = await supabase
+    // Count accepted connections. head:true means "just give me the count,
+    // not the rows" - so this doesn't need to select any actual column
+    // (user_connections has a composite (user_id, connected_user_id)
+    // primary key live, no surrogate id column).
+    const { count: friendsCount, error } = await supabase
       .from("user_connections")
-      .select("id", { count: "exact" })
+      .select("*", { count: "exact", head: true })
       .eq("user_id", userId)
       .eq("status", "accepted");
 
     if (error) throw error;
 
     // Count pending requests received
-    const { data: pendingData, error: pendingError } = await supabase
+    const { count: pendingCount, error: pendingError } = await supabase
       .from("user_connections")
-      .select("id", { count: "exact" })
+      .select("*", { count: "exact", head: true })
       .eq("connected_user_id", userId)
       .eq("status", "pending");
 
     if (pendingError) throw pendingError;
 
     return {
-      friends: data.length,
-      pendingRequests: pendingData.length,
+      friends: friendsCount ?? 0,
+      pendingRequests: pendingCount ?? 0,
     };
   } catch (error) {
     console.error("[Database] getFriendCounts error:", error);
