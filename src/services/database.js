@@ -364,14 +364,17 @@ export const removeFriend = async (userId, friendId) => {
 // Get friendship status between two users
 export const getFriendshipStatus = async (userId, otherUserId) => {
   try {
+    // maybeSingle, not single: most Discover/Matches candidates have no
+    // existing row here at all, and that's a normal "no relationship yet"
+    // result, not an error - single() would 406 on every zero-row match.
     const { data, error } = await supabase
       .from("user_connections")
       .select("status")
       .eq("user_id", userId)
       .eq("connected_user_id", otherUserId)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== "PGRST116") throw error;
+    if (error) throw error;
 
     if (!data) {
       // Also check the reverse direction for pending requests
@@ -380,9 +383,9 @@ export const getFriendshipStatus = async (userId, otherUserId) => {
         .select("status")
         .eq("user_id", otherUserId)
         .eq("connected_user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (reverseError && reverseError.code !== "PGRST116") throw reverseError;
+      if (reverseError) throw reverseError;
 
       if (reverseData && reverseData.status === "pending") {
         return "incoming_request";
