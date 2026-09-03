@@ -16,19 +16,12 @@ Original goals (recovered from `Reference/`, the salvaged docs from earlier depr
 
 ## Stack
 
-- Frontend: React 18 + Vite + TailwindCSS, `react-router-dom` v6
-- Backend-as-a-service: Supabase (Postgres, Auth, Realtime)
-- Chat: `stream-chat` / `stream-chat-react`, token minted by a small Express server (`src/services/tokenGeneration.js`, run via `npm run token-server`)
-- Two processes needed locally: `npm run dev` (Vite) + `npm run token-server` (Express, chat tokens)
+- Frontend: React 19 + Vite + Tailwind CSS 4 (`@theme` design tokens, `.dark`-class theming), `react-router-dom` v6
+- Backend-as-a-service: Supabase (Postgres, Auth, Realtime, RLS) — project `nfhkdwwydzigdojikzeu`
+- Chat: 1:1 and group, built directly on Supabase tables + Realtime (`src/services/chatService.js`) — no separate chat vendor or token server; `npm run dev` is the only process needed locally
+- Route-level code splitting via `React.lazy`/`Suspense` (`src/App.jsx`)
 
-## Known issues (as of 2026-07-02, not yet fixed)
-
-- **`src/App.jsx` does not build.** It imports 6 paths that don't exist anywhere in `src/`: `./components/layout/Navbar`, `./components/layout/UnifiedSidebar`, `./pages/community/Communities`, `./pages/community/CommunityView`, `./components/Interests`, `./components/ReaderCategorization`, `./pages/Chat`, `./pages/chat/Conversation`. The real files live at `src/components/Side-Top bars/{Navbar,UnifiedSidebar}.jsx`, `src/components/community/{Communities,CommunityView}.jsx`, `src/components/Categorisation/{Interests,ReaderCategorization}.jsx`, `src/pages/ChatRooms.jsx`, `src/components/chat/Conversation.jsx`. Looks like a mid-refactor left `App.jsx` pointing at a target folder structure (`pages/`, `components/layout/`) that the rest of the tree was never fully moved into.
-- **`AuthContext.jsx`'s `signIn`/`signUp` are empty stubs** (`/* ... your signIn logic ... */`). Not a live bug — `Login.jsx`/`Signup.jsx` call `src/services/auth.js` directly, bypassing the context — but the stubs are dead/misleading code.
-- **Git working tree is entirely untracked.** The current `src/`, `package.json`, etc. at the project root have zero relationship to git history — `git status` shows them all as `??`. The last real commit (`65ccecd "restarting and completing project"`) tracks an *older* version of the app nested under a `bookpals/` subfolder (different component structure: `Categorisation/`, `Reccomendations/`, `Side-Top bars/` instead of today's `pages/` + `components/`), which git now sees as fully deleted. In short: nothing in the live codebase is committed yet. Confirm with Mr Salad before any git operation that could be read as destructive.
-
-- **`src/services/tokenGeneration.js` reads server-only secrets with a `VITE_` prefix** (`VITE_STREAM_API_SECRET`, `VITE_SUPABASE_SERVICE_ROLE`). Vite inlines any `VITE_`-prefixed var into the client bundle, so this pattern risks shipping the Supabase *service role key* (bypasses RLS) to the browser. Rename to non-prefixed vars (`STREAM_API_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`) before deploying. Not new — `Reference/# BookPals.txt` already contradicts itself on this exact point.
-- **`src/services/database.js`'s friend-request lookup interpolates `senderId`/`receiverId` directly into a PostgREST `.or()` filter string** without validating they're UUIDs — a filter-bypass risk, not classic SQL injection (Supabase's client isn't raw SQL), but still unsanitized input reaching a query filter.
+Everything under "Known issues" as of the original 2026-07-02 audit (App.jsx's broken imports, AuthContext's dead signIn/signUp stubs, the fully-untracked git tree, the Stream/Express token server's `VITE_`-prefixed secret exposure, unsanitized ids in `database.js`'s `.or()` filters) has since been fixed and committed — see git log / `.claude/plans/DB-AUDIT-LOG.md` for the live-DB side of that history. This section intentionally isn't a running changelog; check git log for what's actually landed recently rather than trusting a static summary here to stay current.
 
 ## Reference folder
 
