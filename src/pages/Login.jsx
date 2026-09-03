@@ -37,10 +37,13 @@ export default function Login() {
       const { user } = await signIn(values.email, values.password);
       setUser(user);
       // First login (no preferences saved yet) goes through onboarding;
-      // returning users go straight to Home.
+      // returning users go straight to Home. getPreferences returns null
+      // (doesn't throw) when there's nothing saved yet - the catch here is
+      // only for a genuine fetch failure, which we also route to onboarding
+      // as a safe fallback.
       try {
-        await getPreferences(user.id);
-        navigate("/home");
+        const prefs = await getPreferences(user.id);
+        navigate(prefs ? "/home" : "/onboarding");
       } catch {
         navigate("/onboarding");
       }

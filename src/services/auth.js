@@ -192,10 +192,9 @@ export const handleAuthCallback = async () => {
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (profileError && profileError.code !== "PGRST116") {
-      // Only log if it's not a "not found" error
+    if (profileError) {
       console.error("[Auth] Error checking profile:", profileError);
     }
 

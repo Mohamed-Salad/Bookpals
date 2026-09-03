@@ -24,11 +24,7 @@ export const getRecommendedCommunities = async (userId, limit = 5) => {
 
   try {
     // 1. Get user's favorite genres
-    const { data: prefs, error: prefsError } = await getPreferences(userId);
-    if (prefsError) {
-      console.error("[RecSvc Comm] Error fetching preferences:", prefsError);
-      return [];
-    }
+    const prefs = await getPreferences(userId);
     const userGenres = new Set(prefs?.favorite_genres || []);
     if (userGenres.size === 0) {
       console.log("[RecSvc Comm] User has no favorite genres set.");

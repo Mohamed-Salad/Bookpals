@@ -50,10 +50,9 @@ export const createProfile = async (userId, username) => {
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
-    if (checkError && checkError.code !== "PGRST116") {
-      // PGRST116 is "row not found" which is expected if profile doesn't exist
+    if (checkError) {
       console.error("[Database] Error checking existing profile:", checkError);
     }
 
@@ -172,15 +171,6 @@ export const createPreferences = async (userId, preferences) => {
       });
     }
 
-    // Check if user already has preferences
-    const { data: existingPrefs } = await supabase
-      .from("user_preferences")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    console.log("[Database] Existing preferences:", existingPrefs);
-
     const { data, error } = await supabase
       .from("user_preferences")
       .upsert({
@@ -213,13 +203,15 @@ export const createPreferences = async (userId, preferences) => {
   }
 };
 
+// Returns null (not an error) if the user hasn't saved preferences yet -
+// callers should check for that instead of relying on a thrown exception.
 export const getPreferences = async (userId) => {
   try {
     const { data, error } = await supabase
       .from("user_preferences")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return data;
@@ -527,13 +519,15 @@ export const getCommunities = async () => {
   }
 };
 
+// Returns null (not an error) for a missing/deleted community id -
+// CommunityView.jsx already branches on that to show "Community not found."
 export const getCommunity = async (communityId) => {
   try {
     const { data, error } = await supabase
       .from("communities")
       .select("*")
       .eq("id", communityId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return data;
@@ -722,23 +716,6 @@ export const sendConnectionRequest = async (userId, targetUserId) => {
   }
 };
 
-export const getConnectionStatus = async (userId, otherUserId) => {
-  try {
-    const { data, error } = await supabase
-      .from("user_connections")
-      .select("status")
-      .eq("user_id", userId)
-      .eq("connected_user_id", otherUserId)
-      .single();
-
-    if (error && error.code !== "PGRST116") throw error; // PGRST116 is "no rows returned"
-
-    return data ? data.status : "none";
-  } catch (error) {
-    console.error("[Database] getConnectionStatus error:", error);
-    throw error;
-  }
-};
 // ==========================
 // Search Methods
 // ==========================
