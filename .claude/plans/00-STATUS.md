@@ -14,7 +14,53 @@ logged there (read-only checks included). Check it before assuming any migration
 
 ---
 
-## Current state (verified 2026-08-30, cross-checked against `git log`)
+## Current state (verified 2026-09-04, cross-checked against `git log` + live DB)
+
+**All 6 phases below were already done as of 2026-08-30. Since then** (outside the original phase
+plan, but worth knowing before touching anything):
+- **SEO/infra pass**: real `index.html` (title/description/OG/Twitter/canonical/JSON-LD), favicon,
+  `og-image.png`, `robots.txt`, `sitemap.xml`, `llms.txt`, a `useSEO` hook applied to every page, a
+  real 404 page, source maps enabled, every route converted to `React.lazy`/`Suspense`.
+- **Visual glow-up — started, deferred, not cancelled.** `frontend-design` skill produced a "Ribbon &
+  Ink" design plan (ink/paper/midnight/ribbon-crimson palette, Literata + Source Sans 3). Google
+  Stitch mockup generation timed out and was abandoned per the tool's own don't-retry guidance. User
+  redirected to concrete chat/community bugs instead — this is still an open thread, pick it up when
+  asked.
+- **Chat/community UI cleanup**: every remaining component swept onto Phase 2's design tokens
+  (PostItem, CommentSection, PostList, CreatePost, CreateCommunityModal, CommunityCard,
+  CommunitySidebar, CreateGroupChat, ImageModal, Navbar, UserCard, AuthContext). Legacy
+  `--color-primary`/`-secondary`/`-dark*` tokens and a dead `.btn-primary`-style CSS block finally
+  removed from `index.css` — Phase 2's token migration is now 100% complete, zero legacy references
+  anywhere. Real bugs found and fixed along the way: Navbar's Sign Out button was missing on most
+  routes (hardcoded page allowlist never updated as routes were added); Navbar's nav links were stale
+  (missing Matches/Creators/Chat); `UserCard` had a "View Profile" button pointing at a route that
+  doesn't exist (`/profile/:id` — removed, not built); chat page layout was off-center/off-width
+  (`App.jsx` applied Navbar padding unconditionally even when Navbar was hidden on `/chat`).
+- **"Secure text controls"**: messages now have a 4000-char DB check constraint + not-blank
+  constraint, with a client-side counter and length cap to match.
+- **Accessibility**: `MotionConfig reducedMotion="user"` wired at the app root — closes out Phase
+  4.3's `useReducedMotion` item app-wide in one place instead of touching every `motion.*` file.
+- **Security fixes**: `match_users` no longer accepts a client-supplied `p_user_id` (was impersonation-
+  prone); `searchService.js`'s three text-search functions now sanitize `,()` before building
+  PostgREST `.or()` filters (same issue class CLAUDE.md had flagged and fixed in `database.js`, missed
+  here). **A same-session regression from the `match_users` fix — it silently dropped Phase 5's
+  creator bonus/`is_creator` badge — has been found and fixed** (`0011_match_users_restore_creator_bonus.sql`).
+- **Bug sweep**: `getFriendCounts` (selected a column that doesn't exist on live `user_connections` —
+  schema drift, not a code bug alone), `getFriendshipStatus` (`.single()` 406-ing on the normal
+  zero-rows case), and a full audit of every other `.single()` call in `src/services` for the same
+  bug. One of those was a real silently-broken feature, not just console noise:
+  `getRecommendedCommunities` was destructuring `{data,error}` off a function that returns the row
+  directly, so it always returned `[]` regardless of the user's actual genres. Also deleted a dead,
+  identically-bugged duplicate function (`getConnectionStatus`, zero callers).
+- **Docs corrected to match live reality**: `0001_init.sql`'s `user_connections` definition (no `id`
+  column live, composite PK, undocumented `valid_status` check — the table predates the migration
+  system, so its `create table if not exists` was always a silent no-op); root `CLAUDE.md`'s "known
+  issues" list (all 5 items were already resolved, replaced with a pointer to git log instead of a
+  static summary that goes stale).
+- **Still not done**: a real logged-in two-account pass (this session has never had Supabase
+  credentials) — this is the single biggest recurring "not yet verified" item across Phases 3/4/5/6.
+
+## Original phase-by-phase plan (verified 2026-08-30, cross-checked against `git log`)
 
 - **Phase 1 — DONE & committed** (`1ae8e95`..`4d6553a`, marked complete `cbf870e`).
 - **Phase 2.1 (design tokens) — DONE & committed** (`7a759f7`).
@@ -41,8 +87,10 @@ logged there (read-only checks included). Check it before assuming any migration
   the migration only added `to authenticated`, didn't revoke from `public`) — harmless today because
   `security invoker` + RLS on `user_preferences`/`profiles` already restricts anon reads to zero rows
   regardless, but `revoke execute ... from public` before the grant would be the tidier belt-and-braces
-  version. Worth a one-line follow-up migration if you want it, not done here since it's not asked for
-  and isn't an active leak.
+  version. **Re-confirmed still open 2026-09-04** via `information_schema.routine_privileges` — the
+  `0010`/`0011` migrations that touched this function's signature since didn't add the revoke either
+  (Postgres re-grants `PUBLIC` execute by default on every `create function`, so this resets on every
+  drop+recreate unless explicitly revoked each time). One-line fix, still not done, still not urgent.
 - **Phase 4 — DONE except one item.** Taxonomy broadened (4.1a), `secondary_types`/`pronouns`/
   `display_name`/`role` schema written and applied (4.1b, migration confirmed live 2026-08-30 via
   REST probe — see DB-AUDIT-LOG.md), full multi-step `/onboarding` wizard built and routed (4.2),
@@ -144,6 +192,16 @@ git status              # .env.local NEVER staged
 - [x] P6: realtime chat on Supabase ✅ + Stream fully removed ✅ (done 2026-08-30; two-account
       logged-in message test still open)
 
-**All 6 phases of the original plan are now done.** Remaining open items, none blocking: a real
-logged-in pass across Phases 3/4/5/6 (this session never had a Supabase login), `useReducedMotion`
-wrapping (Phase 4.3), and the two small hardening notes under Phase 3/5 in their respective files.
+**All 6 phases of the original plan are done**, and have been since 2026-08-30 — see the "Current
+state" section at the top for everything done since then outside the phase plan. Remaining open
+items, none blocking:
+- A real logged-in two-account pass across Phases 3/4/5/6 (this session has never had a Supabase
+  login) — the single biggest recurring gap.
+- `match_users`'s anon/PUBLIC EXECUTE grant not explicitly revoked (harmless today, one-line fix,
+  re-confirmed still open 2026-09-04).
+- The visual glow-up/facelift (frontend-design skill's "Ribbon & Ink" plan) — deferred at the user's
+  request in favor of concrete bug fixes, not cancelled.
+- `useReducedMotion` (Phase 4.3) is now DONE — `MotionConfig reducedMotion="user"` at the app root,
+  2026-09-03.
+- Next major phase per root `CLAUDE.md`'s roadmap (not part of this plan's scope): actual CD/deployment.
+  CI (build-check only) and a working local Dockerfile exist; nothing deploys anywhere yet.
