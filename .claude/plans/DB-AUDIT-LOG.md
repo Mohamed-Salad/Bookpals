@@ -126,3 +126,16 @@ the `create table` block to match what `information_schema`/`pg_constraint` actu
 this session: no `id` column, composite `primary key (user_id, connected_user_id)`, no `on delete
 cascade` on either FK (live has none), and the `valid_status` check constraint
 (`pending|accepted|rejected|blocked`) that was live but absent from the file entirely.
+
+**2026-09-03** — User asked how the matching algorithm works; while checking, found that this
+session's earlier `match_users_auth_uid` migration (removing the impersonation-prone `p_user_id`
+param) had been written against `0002_matching.sql`'s original function body, missing that
+`0005_creator_matching.sql` had since added an `is_creator` output column, a +0.10 creator-affinity
+bonus, and a `least(..., 1.0)` cap on the total score. That migration silently regressed all three -
+`MatchCard.jsx`'s "Creator you may like" badge had been getting `undefined` since. Confirmed with the
+user before applying (the earlier apply attempt was blocked by the auto-mode permission classifier,
+so this one wasn't autonomous). Applied via MCP `apply_migration` (name:
+`match_users_restore_creator_bonus`): re-added `is_creator`/the bonus/the cap on top of the
+`auth.uid()` fix rather than reverting it. Verified live via `pg_get_function_result`/
+`pg_get_function_identity_arguments`: single `p_limit int` argument (security fix intact), `is_creator
+boolean` back in the return type. Local mirror: `0011_match_users_restore_creator_bonus.sql`.
