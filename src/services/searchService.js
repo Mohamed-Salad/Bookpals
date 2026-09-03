@@ -6,6 +6,14 @@ import { supabase } from "./supabaseClient";
  * Handles searching across users, communities, and other content
  */
 
+// User-supplied search text gets interpolated straight into PostgREST .or()
+// filter strings below. ',' and '(' / ')' are structural characters in that
+// filter DSL (condition separator / grouping), so an unescaped one could let
+// a search string inject extra filter conditions or search columns outside
+// the intended searchableColumns list. Stripped rather than escaped - none
+// of these are useful in a genuine search phrase.
+const sanitizeFilterText = (text) => text.replace(/[,()]/g, "");
+
 // Get all users with optional limit and pagination
 export const getAllUsers = async (limit = 100, page = 0) => {
   try {
@@ -67,13 +75,14 @@ export const searchUsers = async (query) => {
     console.log(`[SearchService] Searching users with query: "${query}"`);
 
     // More thorough search - look in username, bio, first_name, last_name, etc.
+    const safeQuery = sanitizeFilterText(query);
     const { data, error } = await supabase
       .from("profiles")
       .select(
         "id, username, bio, avatar_url, first_name, last_name, reading_type, favorite_genres"
       )
       .or(
-        `username.ilike.%${query}%, bio.ilike.%${query}%, first_name.ilike.%${query}%, last_name.ilike.%${query}%`
+        `username.ilike.%${safeQuery}%, bio.ilike.%${safeQuery}%, first_name.ilike.%${safeQuery}%, last_name.ilike.%${safeQuery}%`
       )
       .limit(30);
 
@@ -123,11 +132,12 @@ export const searchUsersByUsername = async (username) => {
     }
 
     // Use a more flexible search pattern with multiple column matching
+    const safeUsername = sanitizeFilterText(username);
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .or(
-        `username.ilike.%${username}%, bio.ilike.%${username}%, first_name.ilike.%${username}%, last_name.ilike.%${username}%`
+        `username.ilike.%${safeUsername}%, bio.ilike.%${safeUsername}%, first_name.ilike.%${safeUsername}%, last_name.ilike.%${safeUsername}%`
       )
       .limit(30);
 
@@ -297,8 +307,9 @@ export const searchCommunities = async (searchTerm) => {
       return [];
     }
 
+    const safeSearchTerm = sanitizeFilterText(searchTerm);
     const orConditions = searchableColumns
-      .map((col) => `${col}.ilike.%${searchTerm}%`)
+      .map((col) => `${col}.ilike.%${safeSearchTerm}%`)
       .join(",");
 
     console.log(`[SearchService] Using search conditions: ${orConditions}`);
