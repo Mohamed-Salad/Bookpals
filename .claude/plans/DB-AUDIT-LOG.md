@@ -108,3 +108,21 @@ read-only diagnosis, code-only fix. Flagged to the user (not yet fixed): `0001_i
 `user_connections` definition still doesn't match live reality, so a from-scratch rebuild of this repo's
 migrations (e.g. for the planned Docker/CI local-dev setup) would produce a table shaped differently
 from production.
+
+**2026-09-03** — User asked to proactively address anything else that could balloon later. Audited
+every remaining `.single()` call in `src/services` (code-only, no DB action) and fixed the same
+zero-rows-treated-as-error bug wherever it was live: OAuth callback's + `createProfile`'s "does a
+profile already exist" checks (406 on every first signup), `getPreferences` (406 on every login before
+onboarding, and its callers relied on inconsistent contracts - fixed a real destructuring bug in
+`recommendationService.js` that had made `getRecommendedCommunities` silently return `[]`
+unconditionally the whole time), and `getCommunity` (dead "not found" branch in `CommunityView.jsx`
+that could never run). Deleted `getConnectionStatus`, a dead duplicate of `getFriendshipStatus` with
+the same bug and zero callers. Full detail in commit `2c722e1`.
+
+Then went back to the `0001_init.sql` / `user_connections` drift flagged in the previous entry, since
+it was explicitly called out as a "could balloon later" item. This is a **file-only correction, nothing
+applied live** - the live table already has this shape today, so there's nothing to migrate. Rewrote
+the `create table` block to match what `information_schema`/`pg_constraint` actually showed earlier
+this session: no `id` column, composite `primary key (user_id, connected_user_id)`, no `on delete
+cascade` on either FK (live has none), and the `valid_status` check constraint
+(`pending|accepted|rejected|blocked`) that was live but absent from the file entirely.

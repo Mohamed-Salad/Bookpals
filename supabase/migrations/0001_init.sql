@@ -42,14 +42,19 @@ create table if not exists public.reader_preferences (
 );
 
 -- Friend/connection graph. Rows are directional; accept creates a reciprocal row.
+-- This table predates the migration system (created before this file ever ran),
+-- so the `create table if not exists` below is a no-op against the live DB - it
+-- documents the real live shape (confirmed via information_schema + pg_constraint
+-- 2026-09-03: no id column, no ON DELETE CASCADE, composite PK, a status check
+-- constraint) rather than the id/unique-constraint shape it had before that.
 create table if not exists public.user_connections (
-  id                uuid primary key default gen_random_uuid(),
-  user_id           uuid references public.profiles (id) on delete cascade,
-  connected_user_id uuid references public.profiles (id) on delete cascade,
-  status            text default 'pending',  -- pending | accepted | rejected
-  created_at        timestamptz default now(),
-  updated_at        timestamptz,
-  unique (user_id, connected_user_id)
+  user_id           uuid not null references public.profiles (id),
+  connected_user_id uuid not null references public.profiles (id),
+  status            text not null default 'pending',  -- pending | accepted | rejected | blocked
+  created_at        timestamptz default timezone('utc'::text, now()),
+  updated_at        timestamptz default timezone('utc'::text, now()),
+  primary key (user_id, connected_user_id),
+  constraint valid_status check (status = any (array['pending', 'accepted', 'rejected', 'blocked']))
 );
 
 -- Communities. `name unique` auto-names the constraint communities_name_key,
