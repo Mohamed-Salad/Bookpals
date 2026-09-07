@@ -11,13 +11,13 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
-import AuthCallback from "./context/AuthCallBack";
 import { NotificationProvider } from "./context/NotificationContext";
 import { Skeleton } from "./components/ui/Skeleton";
 
 // Route-level code splitting - each page ships as its own chunk instead of
 // one large bundle, so a first visit only downloads the page it lands on.
 const LandingPage = lazy(() => import("./pages/LandingPage"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Home = lazy(() => import("./pages/Home"));
