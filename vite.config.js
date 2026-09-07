@@ -11,4 +11,9 @@ export default defineConfig({
     // able to actually debug a production error from its stack trace.
     sourcemap: true,
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./src/tests/setup.js",
+    globals: true,
+  },
 })

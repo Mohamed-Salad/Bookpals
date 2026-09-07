@@ -1,5 +1,6 @@
 import { supabase } from "./supabaseClient";
 import { getOrCreateDirectConversation } from "./chatService";
+import { assertUuid } from "../utils/validation";
 
 console.log(
   "[Database Module] Imported supabase type:",
@@ -8,17 +9,6 @@ console.log(
   supabase ? Object.keys(supabase).join(", ") : "null"
 );
 
-// User-supplied ids get interpolated straight into PostgREST .or() filter
-// strings below. An id that isn't a UUID could break out of the intended
-// filter clause, so every id reaching a raw .or() template is validated here
-// first - one guard shared by every caller rather than one per call site.
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const assertUuid = (id, label) => {
-  if (!UUID_RE.test(id)) {
-    throw new Error(`Invalid ${label}: expected a UUID`);
-  }
-};
 
 // ==========================
 // Profile Methods

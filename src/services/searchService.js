@@ -1,18 +1,11 @@
 // src/services/searchService.js
 import { supabase } from "./supabaseClient";
+import { sanitizeFilterText } from "../utils/validation";
 
 /**
  * Search Service - Centralized location for all search functionality
  * Handles searching across users, communities, and other content
  */
-
-// User-supplied search text gets interpolated straight into PostgREST .or()
-// filter strings below. ',' and '(' / ')' are structural characters in that
-// filter DSL (condition separator / grouping), so an unescaped one could let
-// a search string inject extra filter conditions or search columns outside
-// the intended searchableColumns list. Stripped rather than escaped - none
-// of these are useful in a genuine search phrase.
-const sanitizeFilterText = (text) => text.replace(/[,()]/g, "");
 
 // Get all users with optional limit and pagination
 export const getAllUsers = async (limit = 100, page = 0) => {

@@ -15,7 +15,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      # --legacy-peer-deps: see Dockerfile comment - stream-chat-react's
-      # @emoji-mart/react peer dep hasn't caught up to React 19 yet.
+      # --legacy-peer-deps: @emoji-mart/react's declared peer range doesn't
+      # cover React 19 yet (works fine at runtime) - same reason the
+      # Dockerfile and netlify.toml both pass this flag too.
       - run: npm ci --legacy-peer-deps
+      - run: npm run test
       - run: npm run build

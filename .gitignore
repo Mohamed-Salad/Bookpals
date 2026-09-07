@@ -48,3 +48,6 @@ BookPals Docs/
 
 # Supabase CLI's local cache (version checks etc.), not project source
 supabase/.temp/
+
+# Netlify CLI's local site-link cache, not project source
+.netlify/
