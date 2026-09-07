@@ -10,6 +10,6 @@ below are the public surface.
 
 ## Public pages
 
-- [Home](https://bookpals.app/): what BookPals is and how it works
-- [Sign up](https://bookpals.app/signup): create an account
-- [Log in](https://bookpals.app/login): sign in to an existing account
+- [Home](https://bookpals-reading-community.netlify.app/): what BookPals is and how it works
+- [Sign up](https://bookpals-reading-community.netlify.app/signup): create an account
+- [Log in](https://bookpals-reading-community.netlify.app/login): sign in to an existing account

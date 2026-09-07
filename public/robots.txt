@@ -16,4 +16,4 @@ Disallow: /search
 Disallow: /create-group
 Disallow: /auth/callback
 
-Sitemap: https://bookpals.app/sitemap.xml
+Sitemap: https://bookpals-reading-community.netlify.app/sitemap.xml
