@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # @emoji-mart/react's declared peer range doesn't cover React 19 yet
+  # (works fine at runtime) - same reason CI and the Dockerfile both pass
+  # this flag. Netlify's own install step needs it too.
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Client-side routing (react-router-dom): every path that isn't a real
+# static asset must fall through to index.html so the SPA can render the
+# route itself. Without this, refreshing or directly visiting any route
+# other than "/" 404s.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
