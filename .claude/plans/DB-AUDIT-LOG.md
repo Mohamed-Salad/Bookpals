@@ -139,3 +139,44 @@ so this one wasn't autonomous). Applied via MCP `apply_migration` (name:
 `auth.uid()` fix rather than reverting it. Verified live via `pg_get_function_result`/
 `pg_get_function_identity_arguments`: single `p_limit int` argument (security fix intact), `is_creator
 boolean` back in the return type. Local mirror: `0011_match_users_restore_creator_bonus.sql`.
+
+**2026-09-07** — User reported chat conversation creation ("Message" button on Discover) failing with
+a 403 / Postgres `42501 new row violates row-level security policy for table "conversations"` -
+recurring across multiple sessions, previously misdiagnosed (see the 2026-09-02 entry above: an
+earlier vague report of this exact same flow was wrongly chased as a Cloudflare 525 network issue).
+
+Root-caused this time with actual reproduction rather than guessing. Signed up a real, fresh test
+account via Playwright against the local dev server (no email-confirmation gate on this project, so
+this was immediate) specifically to rule out stale-session theories - confirmed via
+`supabase.auth.getUser()` in-page that the session's user id matched the server-verified id exactly,
+then reproduced the identical 403 with that guaranteed-fresh session. That ruled out client-side state
+entirely, so moved to direct SQL: read-only (`information_schema`, `pg_policies`, `pg_constraint`,
+`pg_trigger`) confirmed the live `conversations` INSERT policy exactly matches
+`0008_chat.sql` (`with check (auth.uid() = created_by)`), no extra/conflicting policies, no triggers,
+RLS not forced. Then, inside a rolled-back transaction simulating the exact authenticated session
+(`set local role authenticated; set local request.jwt.claims = '...'`), proved `auth.uid()` resolves
+correctly and `auth.uid() = auth.uid()` is `true` - yet the identical insert with `RETURNING`/`.select()`
+still 403's, while the *same* insert **without** `RETURNING` succeeds. That isolates the real cause:
+Postgres RLS requires a `RETURNING` row to also satisfy the table's `SELECT` policy, not just the
+`INSERT` policy's `WITH CHECK` - and `conversations`' `SELECT` policy
+(`is_conversation_member(id, auth.uid())`) is false for a brand new conversation until the creator's
+`conversation_members` row exists, which `chatService.js` was inserting in a *separate, later* call.
+`chatService.js` itself was never at fault - confirmed directly, since raw SQL bypassing it entirely
+reproduced the identical failure.
+
+Fix applied via MCP `apply_migration` (name: `atomic_conversation_creation`): two new `security
+definer` functions, `create_direct_conversation(p_other_user_id uuid)` and
+`create_group_conversation(p_name text, p_member_ids uuid[])`, each creating the conversation row and
+all `conversation_members` rows in one atomic, RLS-bypassing transaction (same pattern as
+`is_conversation_member`) - sidesteps the RETURNING/SELECT-policy gap entirely, and as a bonus fixes a
+pre-existing non-atomicity bug (a failed second insert after a successful first would have orphaned a
+conversation row). `chatService.js` rewritten to call these RPCs instead of raw
+`.insert().select()`; `createGroupConversation`'s `creatorId` parameter dropped (same reasoning as the
+`match_users` fix - derive identity from `auth.uid()` server-side, don't trust a client-supplied id) -
+`CreateGroupChat.jsx` updated to match. Verified end-to-end via Playwright with the same real test
+account: clicked Message on Discover, landed on `/chat/<real-uuid>` with zero console errors, sent an
+actual message, it rendered correctly. Local mirror: `0012_atomic_conversation_creation.sql`.
+
+Left uncleaned: the test account (`claudetest1.bookpals@example.com`) and the test conversation/message
+created during verification. Not deleted - `auth.users` deletion carries more risk than the cleanup is
+worth, and the project already has dozens of test profiles from prior sessions.

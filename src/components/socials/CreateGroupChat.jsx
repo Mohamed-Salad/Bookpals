@@ -79,7 +79,6 @@ const CreateGroupChat = ({ onClose }) => {
       setError("");
 
       const conversationId = await createGroupConversation(
-        user.id,
         groupName,
         selectedUsers.map((u) => u.id)
       );

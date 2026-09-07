@@ -35,42 +35,29 @@ export const getOrCreateDirectConversation = async (userIdA, userIdB) => {
     }
   }
 
-  const { data: conversation, error: convError } = await supabase
-    .from("conversations")
-    .insert({ is_group: false, created_by: userIdA })
-    .select()
-    .single();
-  if (convError) throw convError;
-
-  const { error: memberError } = await supabase
-    .from("conversation_members")
-    .insert([
-      { conversation_id: conversation.id, user_id: userIdA },
-      { conversation_id: conversation.id, user_id: userIdB },
-    ]);
-  if (memberError) throw memberError;
-
-  return conversation.id;
+  // Atomic RPC: creates the conversation and both membership rows in one
+  // transaction, server-side (security definer, bypasses RLS internally -
+  // same pattern as is_conversation_member below). A plain client-side
+  // insert().select() here 403s: PostgREST's .select() requests RETURNING,
+  // and Postgres RLS requires a RETURNING row to also pass the table's
+  // SELECT policy - conversations' SELECT policy needs the caller to
+  // already be a conversation_member, which doesn't exist yet at the
+  // moment this insert would run. See DB-AUDIT-LOG.md 2026-09-07.
+  const { data: conversationId, error: rpcError } = await supabase.rpc(
+    "create_direct_conversation",
+    { p_other_user_id: userIdB }
+  );
+  if (rpcError) throw rpcError;
+  return conversationId;
 };
 
-export const createGroupConversation = async (creatorId, name, memberIds) => {
-  const { data: conversation, error: convError } = await supabase
-    .from("conversations")
-    .insert({ is_group: true, name, created_by: creatorId })
-    .select()
-    .single();
-  if (convError) throw convError;
-
-  const rows = [creatorId, ...memberIds].map((userId) => ({
-    conversation_id: conversation.id,
-    user_id: userId,
-  }));
-  const { error: memberError } = await supabase
-    .from("conversation_members")
-    .insert(rows);
-  if (memberError) throw memberError;
-
-  return conversation.id;
+export const createGroupConversation = async (name, memberIds) => {
+  const { data: conversationId, error } = await supabase.rpc(
+    "create_group_conversation",
+    { p_name: name, p_member_ids: memberIds }
+  );
+  if (error) throw error;
+  return conversationId;
 };
 
 // List conversations for the current user, each with its member profiles
